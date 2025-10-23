@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import ZoneCard from './components/ZoneCard';
 import EditModal from './components/EditModal';
-import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking } from './services/googleSheets';
+import { ToastContainer } from './components/Toast';
+import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, createBooking } from './services/googleSheets';
 
 /**
  * Главный компонент приложения Канбан-доска
@@ -16,16 +17,33 @@ function App() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [editingZone, setEditingZone] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [toasts, setToasts] = useState([]);
+
+  // Функция добавления toast-уведомления
+  const addToast = (message, type = 'info', duration = 3000) => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type, duration }]);
+  };
+
+  // Функция удаления toast-уведомления
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  };
 
   // Загрузка данных из Google Sheets
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (showSuccess = false) => {
     setIsLoading(true);
     try {
       const data = await fetchBookings(selectedBranch);
       setZones(data);
       setLastUpdate(new Date());
+      if (showSuccess) {
+        addToast('✅ Данные обновлены', 'success');
+      }
     } catch (error) {
       console.error('Ошибка загрузки данных:', error);
+      addToast('⚠️ Ошибка связи с таблицей', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -48,29 +66,58 @@ function App() {
     try {
       await updateBookingStatus(bookingId, newStatus);
       await loadData();
+      addToast('✅ Статус обновлён', 'success');
     } catch (error) {
       console.error('Ошибка изменения статуса:', error);
-      alert('Не удалось изменить статус бронирования');
+      addToast('❌ Не удалось изменить статус', 'error');
     }
+  };
+
+  // Обработка создания новой брони
+  const handleCreate = (zone) => {
+    setEditingZone(zone);
+    setEditingBooking(null);
+    setIsCreating(true);
+    setEditModalOpen(true);
   };
 
   // Обработка редактирования бронирования
   const handleEdit = (booking) => {
-    // Находим зону для этого бронирования
     const zone = zones.find(z => z.booking?.id === booking.id);
     setEditingBooking(booking);
     setEditingZone(zone);
+    setIsCreating(false);
     setEditModalOpen(true);
   };
 
-  // Сохранение отредактированного бронирования
+  // Сохранение брони (создание или редактирование)
   const handleSaveEdit = async (bookingId, newData) => {
     try {
-      await updateBooking(bookingId, newData);
+      if (isCreating) {
+        // Создание новой брони
+        await createBooking(editingZone.name, selectedBranch, newData);
+        addToast('✅ Бронь создана', 'success');
+      } else {
+        // Обновление существующей
+        await updateBooking(bookingId, newData);
+        addToast('✅ Бронь обновлена', 'success');
+      }
       await loadData();
     } catch (error) {
-      console.error('Ошибка редактирования:', error);
-      alert('Не удалось обновить бронирование');
+      console.error('Ошибка сохранения:', error);
+      addToast('❌ Не удалось сохранить бронь', 'error');
+    }
+  };
+
+  // Переключение счастливых часов
+  const handleHappyHoursToggle = async (bookingId, enabled) => {
+    try {
+      await updateBooking(bookingId, { happyHours: enabled });
+      await loadData();
+      addToast(enabled ? '🎉 Счастливые часы активированы!' : 'Счастливые часы отключены', 'success');
+    } catch (error) {
+      console.error('Ошибка переключения счастливых часов:', error);
+      addToast('❌ Не удалось обновить статус', 'error');
     }
   };
 
@@ -80,9 +127,10 @@ function App() {
       try {
         await deleteBooking(bookingId);
         await loadData();
+        addToast('✅ Бронь удалена', 'success');
       } catch (error) {
         console.error('Ошибка удаления:', error);
-        alert('Не удалось удалить бронирование');
+        addToast('❌ Не удалось удалить бронь', 'error');
       }
     }
   };
@@ -92,8 +140,14 @@ function App() {
     if (confirm('Вы уверены, что хотите очистить все бронирования?')) {
       // В реальном приложении здесь будет вызов API для массового удаления
       console.log('Очистка всех бронирований');
+      addToast('🗑️ Все брони очищены', 'success');
       loadData();
     }
+  };
+
+  // Обработка ручного обновления
+  const handleRefresh = () => {
+    loadData(true);
   };
 
   // Фильтрация зон по статусу
@@ -128,7 +182,7 @@ function App() {
           onBranchChange={handleBranchChange}
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
-          onRefresh={loadData}
+          onRefresh={handleRefresh}
           onClearAll={handleClearAll}
           lastUpdate={lastUpdate}
           totalZones={zones.length}
@@ -159,6 +213,8 @@ function App() {
                   onStatusChange={handleStatusChange}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  onCreate={handleCreate}
+                  onHappyHoursToggle={handleHappyHoursToggle}
                 />
               ))}
             </div>
@@ -217,17 +273,25 @@ function App() {
         </footer>
       </div>
 
-      {/* Модальное окно редактирования */}
+      {/* Модальное окно редактирования/создания */}
       <EditModal
         booking={editingBooking}
         zone={editingZone}
         isOpen={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
+        onClose={() => {
+          setEditModalOpen(false);
+          setIsCreating(false);
+        }}
         onSave={handleSaveEdit}
+        isCreating={isCreating}
       />
+
+      {/* Toast-уведомления */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 }
 
 export default App;
+
 

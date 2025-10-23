@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Check, Edit2, Trash2, Users, Clock, Phone } from 'lucide-react';
+import { Check, Edit2, Trash2, Users, Clock, Phone, Plus } from 'lucide-react';
+import HappyHoursIndicator from './HappyHoursIndicator';
 
 /**
  * Карточка зоны с бронированием
  */
-const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete }) => {
+const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHoursToggle }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const { name, capacity, isVip, booking } = zone;
 
   // Определяем статус и цвет карточки
@@ -85,9 +87,39 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete }) => {
             <span className="font-semibold text-lg">{booking.time}</span>
           </div>
 
-          {/* Имя гостя */}
-          <div className="text-white font-medium">
-            {booking.name}
+          {/* Имя гостя с tooltip */}
+          <div 
+            className="relative"
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            <div className="text-white font-medium cursor-pointer hover:text-dungeon-neon-green transition-colors">
+              {booking.name}
+            </div>
+            
+            {/* Tooltip */}
+            {showTooltip && (
+              <div className="absolute z-50 bottom-full left-0 mb-2 p-3 bg-dungeon-darker border-2 border-dungeon-neon-green rounded-lg shadow-neon-green min-w-[200px] animate-fade-in">
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-dungeon-neon-green">
+                    <Clock size={14} />
+                    <span className="font-semibold">{booking.time}</span>
+                  </div>
+                  {booking.phone && (
+                    <div className="flex items-center gap-2 text-gray-300">
+                      <Phone size={14} />
+                      <span>{booking.phone}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <Users size={14} />
+                    <span>{booking.guests} гостей</span>
+                  </div>
+                </div>
+                {/* Стрелка tooltip */}
+                <div className="absolute top-full left-4 -mt-1 w-2 h-2 bg-dungeon-neon-green transform rotate-45"></div>
+              </div>
+            )}
           </div>
 
           {/* Количество гостей */}
@@ -103,6 +135,14 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete }) => {
               <span className="text-sm">{booking.phone}</span>
             </div>
           )}
+
+          {/* Индикатор счастливых часов */}
+          <HappyHoursIndicator
+            time={booking.time}
+            isHappyHours={booking.happyHours}
+            isActive={booking.happyHours}
+            onToggle={() => onHappyHoursToggle && onHappyHoursToggle(booking.id, !booking.happyHours)}
+          />
 
           {/* Кнопки действий */}
           <div className="flex gap-2 mt-4 pt-3 border-t border-dungeon-gray">
@@ -132,10 +172,19 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete }) => {
           </div>
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
-          <div className="text-4xl mb-2">📭</div>
-          <p className="text-sm">Нет брони</p>
-        </div>
+        <button
+          onClick={() => onCreate && onCreate(zone)}
+          className="w-full text-center py-8 text-gray-500 hover:text-dungeon-neon-green hover:bg-dungeon-neon-green/5 rounded-lg transition-all duration-200 group"
+        >
+          <div className="flex flex-col items-center gap-2">
+            <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">📭</div>
+            <p className="text-sm">Нет брони</p>
+            <div className="flex items-center gap-1 text-dungeon-neon-green opacity-0 group-hover:opacity-100 transition-opacity">
+              <Plus size={16} />
+              <span className="text-xs font-semibold">Добавить бронь</span>
+            </div>
+          </div>
+        </button>
       )}
     </div>
   );

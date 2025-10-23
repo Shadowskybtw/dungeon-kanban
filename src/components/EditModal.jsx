@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, Clock, Users, Phone, User } from 'lucide-react';
 
 /**
- * Модальное окно для редактирования бронирования
+ * Модальное окно для редактирования/создания бронирования
  */
-const EditModal = ({ booking, zone, isOpen, onClose, onSave }) => {
+const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false }) => {
   const [formData, setFormData] = useState({
     time: '',
     name: '',
     guests: '',
     phone: '',
-    status: 'pending'
+    status: 'pending',
+    happyHours: false
   });
 
   useEffect(() => {
@@ -20,16 +21,49 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave }) => {
         name: booking.name || '',
         guests: booking.guests || '',
         phone: booking.phone || '',
-        status: booking.status || 'pending'
+        status: booking.status || 'pending',
+        happyHours: booking.happyHours || false
+      });
+    } else if (isCreating) {
+      // Для новой брони устанавливаем значения по умолчанию
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      setFormData({
+        time: `${hours}:${minutes}`,
+        name: '',
+        guests: 2,
+        phone: '',
+        status: 'pending',
+        happyHours: false
       });
     }
-  }, [booking]);
+  }, [booking, isCreating]);
 
-  if (!isOpen || !booking) return null;
+  if (!isOpen || (!booking && !isCreating)) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(booking.id, formData);
+    
+    // Проверка на счастливые часы
+    if (formData.time) {
+      const [hours, minutes] = formData.time.split(':').map(Number);
+      const timeInMinutes = hours * 60 + minutes;
+      const isInRange = timeInMinutes >= 840 && timeInMinutes < 1140; // 14:00-19:00
+      
+      // Автоматически устанавливаем счастливые часы, если время попадает в диапазон
+      if (isInRange && !formData.happyHours) {
+        formData.happyHours = false; // Оставляем выбор пользователю
+      } else if (!isInRange) {
+        formData.happyHours = false; // Отключаем, если не в диапазоне
+      }
+    }
+    
+    if (isCreating) {
+      onSave(null, formData); // null ID для новой брони
+    } else {
+      onSave(booking.id, formData);
+    }
     onClose();
   };
 
@@ -48,7 +82,7 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave }) => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="font-orbitron text-2xl font-bold text-dungeon-neon-purple">
-                Редактирование брони
+                {isCreating ? 'Новая бронь' : 'Редактирование брони'}
               </h2>
               <p className="text-gray-400 text-sm mt-1">{zone?.name}</p>
             </div>

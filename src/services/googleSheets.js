@@ -68,6 +68,29 @@ export const deleteBooking = async (id) => {
 };
 
 /**
+ * Создание новой брони
+ * @param {string} zone - Название зоны
+ * @param {string} branch - Филиал
+ * @param {Object} data - Данные брони
+ */
+export const createBooking = async (zone, branch, data) => {
+  try {
+    // В production:
+    // const response = await fetch(GOOGLE_SCRIPT_URL, {
+    //   method: 'POST',
+    //   body: JSON.stringify({ action: 'create', zone, branch, ...data })
+    // });
+    // return await response.json();
+    
+    console.log(`Создание брони для ${zone} (${branch}):`, data);
+    return { success: true, id: `b${Date.now()}` };
+  } catch (error) {
+    console.error('Ошибка при создании брони:', error);
+    throw error;
+  }
+};
+
+/**
  * Обновление данных бронирования
  * @param {string} id - ID бронирования
  * @param {Object} data - Новые данные
@@ -125,7 +148,8 @@ const getMockData = (branch) => {
       guests: 4,
       phone: '+7 (999) 123-45-67',
       status: 'active',
-      branch: 'Московское ш.'
+      branch: 'Московское ш.',
+      happyHours: false
     },
     {
       id: 'b2',
@@ -135,7 +159,8 @@ const getMockData = (branch) => {
       guests: 6,
       phone: '+7 (999) 234-56-78',
       status: 'active',
-      branch: 'Московское ш.'
+      branch: 'Московское ш.',
+      happyHours: false
     },
     {
       id: 'b3',
@@ -145,7 +170,8 @@ const getMockData = (branch) => {
       guests: 8,
       phone: '+7 (999) 345-67-89',
       status: 'pending',
-      branch: 'Московское ш.'
+      branch: 'Московское ш.',
+      happyHours: false
     },
     {
       id: 'b4',
@@ -155,7 +181,8 @@ const getMockData = (branch) => {
       guests: 5,
       phone: '+7 (999) 456-78-90',
       status: 'active',
-      branch: 'Полевая'
+      branch: 'Полевая',
+      happyHours: true // В счастливых часах!
     },
     {
       id: 'b5',
@@ -165,7 +192,8 @@ const getMockData = (branch) => {
       guests: 7,
       phone: '+7 (999) 567-89-01',
       status: 'cancelled',
-      branch: 'Полевая'
+      branch: 'Полевая',
+      happyHours: false
     },
     {
       id: 'b6',
@@ -175,7 +203,8 @@ const getMockData = (branch) => {
       guests: 10,
       phone: '+7 (999) 678-90-12',
       status: 'active',
-      branch: 'Московское ш.'
+      branch: 'Московское ш.',
+      happyHours: false
     },
   ];
 
