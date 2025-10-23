@@ -348,7 +348,7 @@ function App() {
 
         {/* Футер */}
         <footer className="container mx-auto px-4 py-8 text-center text-gray-500 text-sm">
-          <p>© 2025 DUNGEON. Система управления бронированиями. v1.0.2</p>
+          <p>© 2025 DUNGEON. Система управления бронированиями. v1.0.3</p>
           <p className="mt-2">Автообновление каждые 30 секунд</p>
         </footer>
       </div>
