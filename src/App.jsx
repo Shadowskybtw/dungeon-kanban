@@ -63,13 +63,30 @@ function App() {
 
   // Обработка изменения статуса бронирования
   const handleStatusChange = async (bookingId, newStatus) => {
+    // Оптимистичное обновление UI
+    setZones(prevZones => prevZones.map(zone => {
+      if (zone.booking?.id === bookingId) {
+        return {
+          ...zone,
+          booking: {
+            ...zone.booking,
+            status: newStatus
+          }
+        };
+      }
+      return zone;
+    }));
+
     try {
       await updateBookingStatus(bookingId, newStatus);
-      await loadData();
       addToast('✅ Статус обновлён', 'success');
+      // Обновляем данные с сервера
+      setTimeout(() => loadData(), 500);
     } catch (error) {
       console.error('Ошибка изменения статуса:', error);
       addToast('❌ Не удалось изменить статус', 'error');
+      // В случае ошибки откатываем изменения
+      loadData();
     }
   };
 
@@ -94,43 +111,105 @@ function App() {
   const handleSaveEdit = async (bookingId, newData) => {
     try {
       if (isCreating) {
-        // Создание новой брони
+        // Создание новой брони - оптимистичное обновление
+        const newBookingId = `temp-${Date.now()}`;
+        const newBooking = {
+          id: newBookingId,
+          ...newData,
+          zone: editingZone.name,
+          branch: selectedBranch
+        };
+
+        setZones(prevZones => prevZones.map(zone => {
+          if (zone.id === editingZone.id) {
+            return {
+              ...zone,
+              booking: newBooking
+            };
+          }
+          return zone;
+        }));
+
         await createBooking(editingZone.name, selectedBranch, newData);
         addToast('✅ Бронь создана', 'success');
       } else {
-        // Обновление существующей
+        // Обновление существующей - оптимистичное обновление
+        setZones(prevZones => prevZones.map(zone => {
+          if (zone.booking?.id === bookingId) {
+            return {
+              ...zone,
+              booking: {
+                ...zone.booking,
+                ...newData
+              }
+            };
+          }
+          return zone;
+        }));
+
         await updateBooking(bookingId, newData);
         addToast('✅ Бронь обновлена', 'success');
       }
-      await loadData();
+      
+      // Обновляем данные с сервера через секунду
+      setTimeout(() => loadData(), 1000);
     } catch (error) {
       console.error('Ошибка сохранения:', error);
       addToast('❌ Не удалось сохранить бронь', 'error');
+      // В случае ошибки откатываем изменения
+      loadData();
     }
   };
 
   // Переключение счастливых часов
   const handleHappyHoursToggle = async (bookingId, enabled) => {
+    // Оптимистичное обновление UI
+    setZones(prevZones => prevZones.map(zone => {
+      if (zone.booking?.id === bookingId) {
+        return {
+          ...zone,
+          booking: {
+            ...zone.booking,
+            happyHours: enabled
+          }
+        };
+      }
+      return zone;
+    }));
+
     try {
       await updateBooking(bookingId, { happyHours: enabled });
-      await loadData();
       addToast(enabled ? '🎉 Счастливые часы активированы!' : 'Счастливые часы отключены', 'success');
+      setTimeout(() => loadData(), 500);
     } catch (error) {
       console.error('Ошибка переключения счастливых часов:', error);
       addToast('❌ Не удалось обновить статус', 'error');
+      loadData();
     }
   };
 
   // Обработка удаления бронирования
   const handleDelete = async (bookingId) => {
     if (confirm('Вы уверены, что хотите удалить это бронирование?')) {
+      // Оптимистичное обновление - сразу убираем бронь из UI
+      setZones(prevZones => prevZones.map(zone => {
+        if (zone.booking?.id === bookingId) {
+          return {
+            ...zone,
+            booking: null
+          };
+        }
+        return zone;
+      }));
+
       try {
         await deleteBooking(bookingId);
-        await loadData();
         addToast('✅ Бронь удалена', 'success');
+        setTimeout(() => loadData(), 500);
       } catch (error) {
         console.error('Ошибка удаления:', error);
         addToast('❌ Не удалось удалить бронь', 'error');
+        loadData();
       }
     }
   };
