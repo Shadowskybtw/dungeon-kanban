@@ -3,7 +3,7 @@ import Header from './components/Header';
 import ZoneCard from './components/ZoneCard';
 import EditModal from './components/EditModal';
 import { ToastContainer } from './components/Toast';
-import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, createBooking } from './services/googleSheets';
+import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, createBooking } from './services/api';
 
 /**
  * Главный компонент приложения Канбан-доска
@@ -130,7 +130,7 @@ function App() {
           return zone;
         }));
 
-        await createBooking(editingZone.name, selectedBranch, newData);
+        await createBooking(editingZone.id, editingZone.name, selectedBranch, newData);
         addToast('✅ Бронь создана', 'success');
       } else {
         // Обновление существующей - оптимистичное обновление
