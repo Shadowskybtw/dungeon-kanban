@@ -48,34 +48,54 @@ export async function initDatabase() {
     const zonesCount = await sql`SELECT COUNT(*) as count FROM zones`;
     
     if (zonesCount[0].count === 0) {
-      // Создаем зоны для Московского ш.
+      // Создаем зоны для Московского ш. (22 зоны)
       const moscowZones = [
-        { name: 'Зона 1', capacity: 6, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 2', capacity: 6, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 3', capacity: 6, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 4', capacity: 8, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 5', capacity: 8, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 6', capacity: 6, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 7', capacity: 6, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 8', capacity: 8, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 9', capacity: 6, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 10', capacity: 6, is_vip: false, branch: 'Московское ш.' },
-        { name: 'Зона 11', capacity: 6, is_vip: false, branch: 'Московское ш.' },
-        { name: 'VIP-17', capacity: 10, is_vip: true, branch: 'Московское ш.' },
-        { name: 'VIP-18', capacity: 12, is_vip: true, branch: 'Московское ш.' },
+        { name: 'Зона 1', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 2', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 3', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 4', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 5', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 6', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 7', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 8', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 9', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 10', capacity: 5, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 11', capacity: 10, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 12', capacity: 6, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 13', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 14', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 15', capacity: 4, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 16', capacity: 6, is_vip: false, branch: 'Московское ш.' },
+        { name: 'VIP-17', capacity: 8, is_vip: true, branch: 'Московское ш.' },
+        { name: 'VIP-18', capacity: 8, is_vip: true, branch: 'Московское ш.' },
+        { name: 'Зона 19', capacity: 2, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 20', capacity: 2, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 21', capacity: 2, is_vip: false, branch: 'Московское ш.' },
+        { name: 'Зона 22', capacity: 2, is_vip: false, branch: 'Московское ш.' },
       ];
 
-      // Создаем зоны для Полевой
+      // Создаем зоны для Полевой (20 зон)
       const polevayaZones = [
-        { name: 'Зона 1', capacity: 6, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 1', capacity: 4, is_vip: false, branch: 'Полевая' },
         { name: 'Зона 2', capacity: 6, is_vip: false, branch: 'Полевая' },
-        { name: 'Зона 3', capacity: 6, is_vip: false, branch: 'Полевая' },
-        { name: 'Зона 4', capacity: 8, is_vip: false, branch: 'Полевая' },
-        { name: 'Зона 5', capacity: 8, is_vip: false, branch: 'Полевая' },
-        { name: 'Зона 6', capacity: 6, is_vip: false, branch: 'Полевая' },
-        { name: 'Зона 7', capacity: 6, is_vip: false, branch: 'Полевая' },
-        { name: 'Зона 8', capacity: 8, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 3', capacity: 4, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 4', capacity: 2, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 5', capacity: 4, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 6', capacity: 10, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 7', capacity: 4, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 8', capacity: 6, is_vip: false, branch: 'Полевая' },
         { name: 'Зона 9', capacity: 6, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 10', capacity: 6, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 11', capacity: 2, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 12', capacity: 4, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 13', capacity: 10, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 14', capacity: 4, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 15', capacity: 4, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 16', capacity: 2, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 17', capacity: 4, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 18', capacity: 6, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 19', capacity: 6, is_vip: false, branch: 'Полевая' },
+        { name: 'Зона 20', capacity: 8, is_vip: false, branch: 'Полевая' },
       ];
 
       // Вставляем все зоны
