@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 
 // PostgreSQL подключение к Neon Database
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_ndU5X7kVHJwy@ep-cool-scene-a6ced7pu-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_ndU5X7kVHJwy@ep-cool-scene-a6ced7pu-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require';
 
 const sql = neon(DATABASE_URL);
 

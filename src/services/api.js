@@ -1,7 +1,5 @@
 // API для работы с бэкендом
-const API_URL = process.env.NODE_ENV === 'production' 
-  ? '/api/bookings' 
-  : 'http://localhost:5173/api/bookings';
+const API_URL = '/api/bookings';
 
 /**
  * Получение данных о зонах с бронированиями
