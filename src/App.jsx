@@ -7,6 +7,7 @@ import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, creat
 
 /**
  * Главный компонент приложения Канбан-доска
+ * v1.0.1 - Обновлены зоны: 22 МСК, 20 Полевая
  */
 function App() {
   const [zones, setZones] = useState([]);
@@ -372,5 +373,7 @@ function App() {
 }
 
 export default App;
+
+
 
 
