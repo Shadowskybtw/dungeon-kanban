@@ -190,28 +190,38 @@ function App() {
   };
 
   // Обработка удаления бронирования
-  const handleDelete = async (bookingId) => {
-    if (confirm('Вы уверены, что хотите удалить это бронирование?')) {
-      // Оптимистичное обновление - сразу убираем бронь из UI
-      setZones(prevZones => prevZones.map(zone => {
-        if (zone.booking?.id === bookingId) {
-          return {
-            ...zone,
-            booking: null
-          };
-        }
-        return zone;
-      }));
+  const handleDelete = async (bookingId, guestName) => {
+    const choice = confirm(
+      `Удалить бронь "${guestName}"?\n\nОК = Гость не пришел (сохранить в историю)\nОтмена = Просто удалить (не сохранять)`
+    );
+    
+    if (choice === null) return; // Нажали ESC
+    
+    try {
+      // Оптимистичное обновление - убираем бронь
+      setZones(prevZones => prevZones.map(zone => ({
+        ...zone,
+        bookings: zone.bookings ? zone.bookings.filter(b => b.id !== bookingId) : [],
+        booking: zone.bookings && zone.bookings.length > 0 && zone.bookings[0].id === bookingId 
+          ? (zone.bookings[1] || null) 
+          : zone.booking
+      })));
 
-      try {
+      if (choice) {
+        // OK - гость не пришел, сохраняем в историю
+        await completeBooking(bookingId, 'no_show');
+        addToast('🚫 Бронь удалена (гость не пришел)', 'error');
+      } else {
+        // Отмена - просто удаляем
         await deleteBooking(bookingId);
-        addToast('✅ Бронь удалена', 'success');
-        setTimeout(() => loadData(), 500);
-      } catch (error) {
-        console.error('Ошибка удаления:', error);
-        addToast('❌ Не удалось удалить бронь', 'error');
-        loadData();
+        addToast('🗑️ Бронь удалена', 'success');
       }
+      
+      setTimeout(() => loadData(), 500);
+    } catch (error) {
+      console.error('Ошибка удаления:', error);
+      addToast('❌ Не удалось удалить бронь', 'error');
+      loadData();
     }
   };
 
@@ -254,13 +264,11 @@ function App() {
     }
   };
 
-  // Обработка завершения бронирования
+  // Обработка завершения бронирования (гость пришел)
   const handleComplete = async (bookingId, guestName) => {
-    const choice = confirm(
-      `Гость "${guestName}" пришел?\n\nОК = Пришел (завершить бронь)\nОтмена = Не пришел (не явка)`
-    );
-    
-    const completionType = choice ? 'completed' : 'no_show';
+    if (!confirm(`Гость "${guestName}" пришел?\n\nБронь будет завершена.`)) {
+      return; // Просто закрываем диалог
+    }
     
     try {
       // Оптимистичное обновление - убираем бронь
@@ -272,13 +280,8 @@ function App() {
           : zone.booking
       })));
 
-      await completeBooking(bookingId, completionType);
-      
-      if (completionType === 'completed') {
-        addToast('✅ Бронь завершена (гость пришел)', 'success');
-      } else {
-        addToast('🚫 Бронь завершена (не явка)', 'error');
-      }
+      await completeBooking(bookingId, 'completed');
+      addToast('✅ Бронь завершена (гость пришел)', 'success');
       
       setTimeout(() => loadData(), 500);
     } catch (error) {

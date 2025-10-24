@@ -204,7 +204,7 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
                       </button>
                       
                       <button
-                        onClick={() => onDelete(booking.id)}
+                        onClick={() => onDelete(booking.id, booking.name)}
                         className="flex-1 flex items-center justify-center bg-red-500/20 hover:bg-red-500/30 text-red-400 px-2 py-1.5 rounded transition-all"
                         title="Удалить"
                       >
