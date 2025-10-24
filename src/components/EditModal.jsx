@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Clock, Users, Phone, User } from 'lucide-react';
+import { X, Save, Clock, Users, Phone, User, ChevronUp, ChevronDown } from 'lucide-react';
 
 /**
  * Модальное окно для редактирования/создания бронирования
@@ -179,15 +179,45 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
               <Users size={16} className="text-dungeon-neon-blue" />
               Гости *
             </label>
-            <input
-              type="number"
-              min="1"
-              max={zone?.capacity || 20}
-              value={formData.guests}
-              onChange={(e) => handleChange('guests', parseInt(e.target.value))}
-              className="w-full bg-dungeon-darker border-2 border-dungeon-gray rounded-lg px-4 py-2 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors"
-              required
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                max={zone?.capacity || 20}
+                value={formData.guests}
+                onChange={(e) => handleChange('guests', parseInt(e.target.value) || 1)}
+                className="flex-1 bg-dungeon-darker border-2 border-dungeon-gray rounded-lg px-4 py-2 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors text-center font-semibold"
+                required
+              />
+              <div className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newValue = (parseInt(formData.guests) || 1) + 1;
+                    if (newValue <= (zone?.capacity || 20)) {
+                      handleChange('guests', newValue);
+                    }
+                  }}
+                  className="bg-dungeon-neon-green hover:bg-dungeon-neon-green/80 text-dungeon-darker p-1 rounded transition-all shadow-neon-green/30"
+                  title="Увеличить"
+                >
+                  <ChevronUp size={16} strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newValue = (parseInt(formData.guests) || 1) - 1;
+                    if (newValue >= 1) {
+                      handleChange('guests', newValue);
+                    }
+                  }}
+                  className="bg-dungeon-neon-green hover:bg-dungeon-neon-green/80 text-dungeon-darker p-1 rounded transition-all shadow-neon-green/30"
+                  title="Уменьшить"
+                >
+                  <ChevronDown size={16} strokeWidth={3} />
+                </button>
+              </div>
+            </div>
             <p className="text-xs text-gray-500 mt-1">
               Вместимость: до {zone?.capacity || 0} чел.
             </p>
