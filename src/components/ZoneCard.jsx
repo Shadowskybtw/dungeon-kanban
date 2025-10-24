@@ -66,15 +66,15 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
 
   const getStatusBadge = (status) => {
     const badges = {
-      active: { text: 'Активна', color: 'bg-dungeon-neon-green text-dungeon-darker' },
-      pending: { text: 'Ожидание', color: 'bg-red-500 text-white' },
+      active: { icon: '✓', color: 'bg-dungeon-neon-green text-dungeon-darker' },
+      pending: { icon: '⏱', color: 'bg-red-500 text-white' },
     };
 
     const badge = badges[status] || badges.active;
     
     return (
-      <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-semibold ${badge.color}`}>
-        {badge.text}
+      <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${badge.color}`}>
+        {badge.icon}
       </span>
     );
   };
@@ -112,8 +112,7 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
 
       {/* Вместимость */}
       <div className="flex items-center gap-1 mb-1 text-gray-400">
-        <Users size={10} />
-        <span className="text-[10px]">До {capacity}</span>
+        <span className="text-[10px]">👥 {capacity} чел</span>
       </div>
 
       {/* Информация о бронировании */}
@@ -135,28 +134,25 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
                   {/* Статус и время */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1 text-white">
-                      <Clock size={11} className="text-dungeon-neon-blue" />
-                      <span className="font-semibold text-[11px]">{booking.time}</span>
+                      <span className="font-semibold text-xs">🕐 {booking.time}</span>
                     </div>
                     {getStatusBadge(booking.status)}
                   </div>
 
                   {/* Имя гостя и количество */}
                   <div className="flex items-center justify-between gap-1">
-                    <div className="text-white font-medium text-[11px] truncate">
+                    <div className="text-white font-medium text-xs truncate">
                       {booking.name}
                     </div>
                     <div className="flex items-center gap-0.5 text-gray-300 text-[10px] flex-shrink-0">
-                      <Users size={10} />
-                      <span>{booking.guests}</span>
+                      <span>👤 {booking.guests}</span>
                     </div>
                   </div>
 
-                  {/* Телефон */}
+                  {/* Телефон - только иконка и номер */}
                   {booking.phone && (
                     <div className="flex items-center gap-1 text-gray-300">
-                      <Phone size={10} />
-                      <span className="text-[10px]">{booking.phone}</span>
+                      <span className="text-[10px]">📞 {booking.phone}</span>
                     </div>
                   )}
 
@@ -229,37 +225,33 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
           {/* Кнопка добавить еще бронь */}
           <button
             onClick={() => onCreate && onCreate(zone)}
-            className="w-full flex items-center justify-center gap-1 bg-dungeon-neon-green/10 hover:bg-dungeon-neon-green/20 text-dungeon-neon-green px-1.5 py-1 rounded transition-all duration-200 border border-dashed border-dungeon-neon-green/30 hover:border-dungeon-neon-green/50 text-[10px] font-semibold"
+            className="w-full flex items-center justify-center bg-dungeon-neon-green/10 hover:bg-dungeon-neon-green/20 text-dungeon-neon-green px-1.5 py-1 rounded transition-all duration-200 border border-dashed border-dungeon-neon-green/30 hover:border-dungeon-neon-green/50 text-xs font-semibold"
           >
-            <Plus size={11} />
-            <span>Еще</span>
+            + Еще бронь
           </button>
         </div>
       ) : needsCleaning ? (
         <div className="space-y-1.5">
           <div className="text-center py-2">
             <div className="text-2xl mb-1 animate-bounce">🧹</div>
-            <p className="text-orange-400 font-semibold text-[10px] mb-0.5">Требует уборки!</p>
-            <p className="text-gray-400 text-[9px]">Зона освободилась</p>
+            <p className="text-orange-400 font-semibold text-xs">Требует уборки</p>
           </div>
           
           <div className="flex gap-1">
             <button
               onClick={() => onMarkCleaned && onMarkCleaned(zone.id)}
-              className="flex-1 flex items-center justify-center gap-0.5 bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-1.5 py-1 rounded transition-all duration-200 hover:shadow-neon-green text-[10px] font-semibold"
-              title="Отметить как убранную"
+              className="flex-1 flex items-center justify-center gap-0.5 bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-1.5 py-1 rounded transition-all duration-200 hover:shadow-neon-green text-xs font-semibold"
+              title="Убрано"
             >
-              <CheckCircle size={11} />
-              <span>Убрали</span>
+              ✓
             </button>
             
             <button
               onClick={() => onCreate && onCreate(zone)}
-              className="flex-1 flex items-center justify-center gap-0.5 bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-1.5 py-1 rounded transition-all duration-200 hover:shadow-neon-blue text-[10px]"
+              className="flex-1 flex items-center justify-center gap-0.5 bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-1.5 py-1 rounded transition-all duration-200 hover:shadow-neon-blue text-xs"
               title="Добавить бронь"
             >
-              <Plus size={11} />
-              <span>Бронь</span>
+              +
             </button>
           </div>
         </div>
@@ -269,12 +261,8 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
           className="w-full text-center py-3 text-gray-500 hover:text-dungeon-neon-green hover:bg-dungeon-neon-green/5 rounded transition-all duration-200 group"
         >
           <div className="flex flex-col items-center gap-0.5">
-            <div className="text-xl mb-0.5 group-hover:scale-110 transition-transform">📭</div>
-            <p className="text-[10px]">Нет брони</p>
-            <div className="flex items-center gap-0.5 text-dungeon-neon-green opacity-0 group-hover:opacity-100 transition-opacity">
-              <Plus size={10} />
-              <span className="text-[9px] font-semibold">Добавить</span>
-            </div>
+            <div className="text-2xl mb-0.5 group-hover:scale-110 transition-transform">+</div>
+            <p className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">Добавить</p>
           </div>
         </button>
       )}

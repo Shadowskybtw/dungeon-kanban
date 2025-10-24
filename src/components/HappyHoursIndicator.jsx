@@ -57,8 +57,7 @@ const HappyHoursIndicator = ({ time, isHappyHours, onToggle, isActive }) => {
       {canBeHappyHours && (
         <div className="flex items-center justify-between p-1 bg-dungeon-darker rounded border border-dungeon-gray">
           <div className="flex items-center gap-1">
-            <Clock size={10} className="text-dungeon-neon-green" />
-            <span className="text-[10px] text-gray-300">Счастливые часы</span>
+            <span className="text-[10px] text-gray-300">🎉 Happy Hours</span>
           </div>
           <button
             onClick={onToggle}
@@ -80,23 +79,15 @@ const HappyHoursIndicator = ({ time, isHappyHours, onToggle, isActive }) => {
       {/* Индикатор активных счастливых часов */}
       {isActive && (
         <div className={`
-          flex items-center gap-1 px-1.5 py-1 rounded
+          flex items-center justify-center gap-1 px-1.5 py-1 rounded
           ${isEnding 
             ? 'bg-dungeon-neon-green/30 border border-dungeon-neon-green animate-pulse' 
             : 'bg-dungeon-neon-green/20 border border-dungeon-neon-green'
           }
         `}>
-          <span className="text-xs">🎉</span>
-          <div className="flex-1">
-            <p className="text-dungeon-neon-green font-semibold text-[10px]">
-              Счастливые часы!
-            </p>
-            {isEnding && (
-              <p className="text-[9px] text-dungeon-neon-green/80">
-                ⚠️ Скоро закончатся
-              </p>
-            )}
-          </div>
+          <span className="text-dungeon-neon-green font-semibold text-[10px]">
+            🎉 Happy Hours {isEnding ? '⚠️' : ''}
+          </span>
         </div>
       )}
     </div>
