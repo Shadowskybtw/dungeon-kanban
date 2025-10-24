@@ -318,19 +318,6 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
                 >
                   Ожидание
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleChange('status', 'cancelled')}
-                  className={`
-                    flex-1 py-2 px-4 rounded-lg font-semibold transition-all duration-200 text-sm
-                    ${formData.status === 'cancelled'
-                      ? 'bg-red-500 text-white'
-                      : 'bg-dungeon-darker text-gray-400 border-2 border-dungeon-gray hover:border-red-500/50'
-                    }
-                  `}
-                >
-                  Отменена
-                </button>
               </div>
             </div>
           )}

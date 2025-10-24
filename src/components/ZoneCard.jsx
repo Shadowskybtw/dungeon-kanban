@@ -59,8 +59,6 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
         return 'bg-gradient-to-br from-emerald-900/40 to-dungeon-card border-dungeon-neon-green';
       case 'pending':
         return 'bg-gradient-to-br from-red-900/40 to-dungeon-card border-red-500';
-      case 'cancelled':
-        return 'bg-gradient-to-br from-red-900/40 to-dungeon-card border-red-500';
       default:
         return 'bg-dungeon-card border-dungeon-gray';
     }
@@ -70,7 +68,6 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
     const badges = {
       active: { text: 'Активна', color: 'bg-dungeon-neon-green text-dungeon-darker' },
       pending: { text: 'Ожидание', color: 'bg-red-500 text-white' },
-      cancelled: { text: 'Отменена', color: 'bg-red-500 text-white' },
     };
 
     const badge = badges[status] || badges.active;
