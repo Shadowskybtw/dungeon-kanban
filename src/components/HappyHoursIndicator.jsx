@@ -52,25 +52,25 @@ const HappyHoursIndicator = ({ time, isHappyHours, onToggle, isActive }) => {
   if (!canBeHappyHours && !isActive) return null;
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       {/* Переключатель счастливых часов */}
       {canBeHappyHours && (
-        <div className="flex items-center justify-between p-1.5 bg-dungeon-darker rounded-md border border-dungeon-gray">
-          <div className="flex items-center gap-1.5">
-            <Clock size={12} className="text-dungeon-neon-green" />
-            <span className="text-xs text-gray-300">Счастливые часы</span>
+        <div className="flex items-center justify-between p-1 bg-dungeon-darker rounded border border-dungeon-gray">
+          <div className="flex items-center gap-1">
+            <Clock size={10} className="text-dungeon-neon-green" />
+            <span className="text-[10px] text-gray-300">Счастливые часы</span>
           </div>
           <button
             onClick={onToggle}
             className={`
-              relative inline-flex h-5 w-9 items-center rounded-full transition-colors
+              relative inline-flex h-4 w-7 items-center rounded-full transition-colors
               ${isActive ? 'bg-dungeon-neon-green' : 'bg-dungeon-gray'}
             `}
           >
             <span
               className={`
-                inline-block h-3 w-3 transform rounded-full bg-white transition-transform
-                ${isActive ? 'translate-x-5' : 'translate-x-1'}
+                inline-block h-2.5 w-2.5 transform rounded-full bg-white transition-transform
+                ${isActive ? 'translate-x-3.5' : 'translate-x-0.5'}
               `}
             />
           </button>
@@ -80,19 +80,19 @@ const HappyHoursIndicator = ({ time, isHappyHours, onToggle, isActive }) => {
       {/* Индикатор активных счастливых часов */}
       {isActive && (
         <div className={`
-          flex items-center gap-1.5 px-2 py-1.5 rounded-md
+          flex items-center gap-1 px-1.5 py-1 rounded
           ${isEnding 
             ? 'bg-dungeon-neon-green/30 border border-dungeon-neon-green animate-pulse' 
             : 'bg-dungeon-neon-green/20 border border-dungeon-neon-green'
           }
         `}>
-          <span className="text-sm">🎉</span>
+          <span className="text-xs">🎉</span>
           <div className="flex-1">
-            <p className="text-dungeon-neon-green font-semibold text-xs">
+            <p className="text-dungeon-neon-green font-semibold text-[10px]">
               Счастливые часы!
             </p>
             {isEnding && (
-              <p className="text-[10px] text-dungeon-neon-green/80 mt-0.5">
+              <p className="text-[9px] text-dungeon-neon-green/80">
                 ⚠️ Скоро закончатся
               </p>
             )}

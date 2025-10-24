@@ -338,7 +338,7 @@ function App() {
 
         {/* Основная сетка зон - растягивается на оставшееся пространство */}
         <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto px-4 py-4">
+          <div className="container mx-auto px-2 py-2">
             {isLoading && zones.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
@@ -354,7 +354,7 @@ function App() {
                 </div>
               </div>
             ) : (
-              <div className="grid gap-3 zones-grid">
+              <div className="grid gap-2 zones-grid">
                 {filteredZones.map(zone => (
                   <ZoneCard
                     key={zone.id}
