@@ -43,7 +43,7 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
 
   // Определяем статус и цвет карточки
   const getCardStyle = () => {
-    // Если зона требует уборки
+    // Если зона требует уборки - подсвечиваем всю зону
     if (!hasBookings && needsCleaning) {
       return 'bg-gradient-to-br from-orange-900/50 to-dungeon-card border-orange-500 shadow-orange-500/30 animate-pulse';
     }
@@ -52,17 +52,13 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
       return 'bg-dungeon-card border-dungeon-gray';
     }
     
-    // Если есть брони, определяем цвет по первой активной брони
-    const activeBooking = bookings.find(b => b.status === 'active') || bookings[0];
-    
-    switch (activeBooking?.status) {
-      case 'active':
-        return 'bg-gradient-to-br from-emerald-900/40 to-dungeon-card border-dungeon-neon-green';
-      case 'pending':
-        return 'bg-gradient-to-br from-red-900/40 to-dungeon-card border-red-500';
-      default:
-        return 'bg-dungeon-card border-dungeon-gray';
+    // Если есть брони с заканчивающимися счастливыми часами - подсвечиваем всю зону
+    if (hasEndingHappyHours()) {
+      return 'bg-gradient-to-br from-emerald-900/40 to-dungeon-card border-dungeon-neon-green animate-happy-ending';
     }
+    
+    // Обычное состояние зоны без подсветки
+    return 'bg-dungeon-card border-dungeon-gray';
   };
 
   const getStatusBadge = (status) => {
@@ -125,7 +121,6 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
         ${getCardStyle()}
         ${isVip ? 'shadow-neon-purple' : ''}
         ${isHovered && hasBookings ? 'transform -translate-y-1 shadow-2xl' : ''}
-        ${hasEndingHappyHours() ? 'animate-happy-ending' : ''}
         ${isDragOver ? 'border-dungeon-neon-blue border-2 bg-dungeon-neon-blue/10' : ''}
       `}
       onMouseEnter={() => setIsHovered(true)}
@@ -164,14 +159,14 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
           {/* Показываем все брони */}
           <div className="space-y-1 max-h-[250px] overflow-y-auto pr-0.5">
             {bookings.map((booking, index) => (
-              <div 
+                <div 
                 key={booking.id} 
                 draggable
                 onDragStart={(e) => handleDragStart(e, booking)}
                 className={`
                   p-1.5 rounded border transition-all cursor-move hover:shadow-lg
-                  ${booking.status === 'active' ? 'border-dungeon-neon-green/50 bg-emerald-900/10' :
-                    booking.status === 'pending' ? 'border-red-500/50 bg-red-900/10' :
+                  ${booking.status === 'active' ? 'border-dungeon-neon-green bg-emerald-900/20 shadow-neon-green/30' :
+                    booking.status === 'pending' ? 'border-red-500 bg-red-900/20 shadow-red-500/30' :
                     'border-dungeon-gray bg-dungeon-darker/30'}
                 `}
                 title="Перетащите для переноса в другую зону"

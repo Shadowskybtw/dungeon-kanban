@@ -294,7 +294,10 @@ function App() {
   // Обработка переноса брони между зонами
   const handleMoveBooking = async (bookingId, sourceZoneId, targetZoneId, booking) => {
     try {
-      // Оптимистичное обновление UI
+      // Обновляем бронь в базе данных СНАЧАЛА
+      await updateBooking(bookingId, { zone_id: targetZoneId });
+      
+      // Только после успешного обновления в БД обновляем UI
       setZones(prevZones => prevZones.map(zone => {
         if (zone.id === sourceZoneId) {
           // Убираем бронь из исходной зоны
@@ -312,14 +315,11 @@ function App() {
         return zone;
       }));
 
-      // Обновляем бронь в базе данных
-      await updateBooking(bookingId, { zone_id: targetZoneId });
       addToast(`✅ Бронь "${booking.name}" перенесена в ${zones.find(z => z.id === targetZoneId)?.name}`, 'success');
-      
-      setTimeout(() => loadData(), 500);
     } catch (error) {
       console.error('Ошибка переноса брони:', error);
       addToast('❌ Не удалось перенести бронь', 'error');
+      // В случае ошибки перезагружаем данные
       loadData();
     }
   };
