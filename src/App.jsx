@@ -306,11 +306,14 @@ function App() {
             bookings: zone.bookings ? zone.bookings.filter(b => b.id !== bookingId) : []
           };
         } else if (zone.id === targetZoneId) {
-          // Добавляем бронь в целевую зону
-          return {
-            ...zone,
-            bookings: [...(zone.bookings || []), { ...booking, zone_id: targetZoneId }]
-          };
+          // Добавляем бронь в целевую зону, но только если её там еще нет
+          const existingBooking = zone.bookings?.find(b => b.id === bookingId);
+          if (!existingBooking) {
+            return {
+              ...zone,
+              bookings: [...(zone.bookings || []), { ...booking, zone_id: targetZoneId }]
+            };
+          }
         }
         return zone;
       }));
