@@ -48,6 +48,17 @@ export async function initDatabase() {
 
     console.log('✅ Таблицы созданы');
 
+    // Добавляем поле needs_cleaning если его нет (миграция)
+    try {
+      await sql`
+        ALTER TABLE zones 
+        ADD COLUMN IF NOT EXISTS needs_cleaning BOOLEAN DEFAULT FALSE
+      `;
+      console.log('✅ Поле needs_cleaning добавлено');
+    } catch (error) {
+      console.log('ℹ️ Поле needs_cleaning уже существует');
+    }
+
     // Проверяем, есть ли зоны, если нет - создаем
     const zonesCount = await sql`SELECT COUNT(*) as count FROM zones`;
     console.log('📊 Количество зон в БД:', zonesCount[0].count);
@@ -171,6 +182,7 @@ export async function getZonesWithBookings(branch = null) {
         capacity: zone.capacity,
         isVip: zone.is_vip,
         branch: zone.branch,
+        needsCleaning: zone.needs_cleaning || false,
         booking: booking ? {
           id: booking.id,
           time: booking.time,
@@ -275,12 +287,28 @@ export async function updateBooking(bookingId, data) {
 /**
  * Удалить бронирование
  */
-export async function deleteBooking(bookingId) {
+export async function deleteBooking(bookingId, skipCleaningFlag = false) {
   try {
+    // Получаем zone_id перед удалением
+    const booking = await sql`
+      SELECT zone_id FROM bookings 
+      WHERE id = ${bookingId}
+    `;
+
     await sql`
       DELETE FROM bookings 
       WHERE id = ${bookingId}
     `;
+
+    // Устанавливаем флаг "требует уборки" только если не пропускаем (skipCleaningFlag=false)
+    if (!skipCleaningFlag && booking.length > 0) {
+      await sql`
+        UPDATE zones 
+        SET needs_cleaning = TRUE 
+        WHERE id = ${booking[0].zone_id}
+      `;
+      console.log(`🧹 Зона #${booking[0].zone_id} помечена как требующая уборки`);
+    }
 
     return { success: true };
   } catch (error) {
@@ -318,10 +346,37 @@ export async function clearAllBookings(branch) {
       WHERE branch = ${branch}
     `;
 
+    // Сбрасываем флаги уборки для всех зон в филиале
+    await sql`
+      UPDATE zones 
+      SET needs_cleaning = FALSE 
+      WHERE branch = ${branch}
+    `;
+
     console.log(`🗑️ Удалено броней в филиале ${branch}: ${result.count || 0}`);
+    console.log(`🧹 Сброшены флаги уборки для зон в ${branch}`);
     return { success: true, deletedCount: result.count || 0 };
   } catch (error) {
     console.error('Ошибка очистки всех броней:', error);
+    throw error;
+  }
+}
+
+/**
+ * Отметить зону как убранную
+ */
+export async function markZoneCleaned(zoneId) {
+  try {
+    await sql`
+      UPDATE zones 
+      SET needs_cleaning = FALSE 
+      WHERE id = ${zoneId}
+    `;
+
+    console.log(`✨ Зона #${zoneId} отмечена как убранная`);
+    return { success: true };
+  } catch (error) {
+    console.error('Ошибка отметки зоны как убранной:', error);
     throw error;
   }
 }

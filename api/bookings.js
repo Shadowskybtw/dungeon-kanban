@@ -5,7 +5,8 @@ import {
   updateBooking, 
   deleteBooking,
   updateBookingStatus,
-  clearAllBookings
+  clearAllBookings,
+  markZoneCleaned
 } from './db.js';
 
 export default async function handler(req, res) {
@@ -76,6 +77,13 @@ export default async function handler(req, res) {
             success: true,
             message: `Cleared ${cleared.deletedCount} bookings from ${branch}`,
             deletedCount: cleared.deletedCount
+          });
+
+        case 'markCleaned':
+          await markZoneCleaned(zoneId);
+          return res.status(200).json({
+            success: true,
+            message: 'Zone marked as cleaned'
           });
 
         default:

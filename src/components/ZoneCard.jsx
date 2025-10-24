@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
-import { Check, Edit2, Trash2, Users, Clock, Phone, Plus } from 'lucide-react';
+import { Check, Edit2, Trash2, Users, Clock, Phone, Plus, CheckCircle } from 'lucide-react';
 import HappyHoursIndicator from './HappyHoursIndicator';
 
 /**
  * Карточка зоны с бронированием
  */
-const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHoursToggle }) => {
+const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHoursToggle, onMarkCleaned }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const { name, capacity, isVip, booking } = zone;
+  const { name, capacity, isVip, booking, needsCleaning } = zone;
 
   // Определяем статус и цвет карточки
   const getCardStyle = () => {
+    // Если зона требует уборки
+    if (!booking && needsCleaning) {
+      return 'bg-gradient-to-br from-orange-900/50 to-dungeon-card border-orange-500 shadow-orange-500/30 animate-pulse';
+    }
+    
     if (!booking) {
       return 'bg-dungeon-card border-dungeon-gray';
     }
@@ -184,6 +189,34 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
               title="Удалить"
             >
               <Trash2 size={18} />
+            </button>
+          </div>
+        </div>
+      ) : needsCleaning ? (
+        <div className="space-y-4">
+          <div className="text-center py-6">
+            <div className="text-5xl mb-3 animate-bounce">🧹</div>
+            <p className="text-orange-400 font-semibold text-lg mb-2">Требует уборки!</p>
+            <p className="text-gray-400 text-sm">Зона освободилась, необходима уборка</p>
+          </div>
+          
+          <div className="flex gap-2">
+            <button
+              onClick={() => onMarkCleaned && onMarkCleaned(zone.id)}
+              className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-4 py-3 rounded-lg transition-all duration-200 hover:shadow-neon-green font-semibold"
+              title="Отметить как убранную"
+            >
+              <CheckCircle size={20} />
+              <span>Убрали</span>
+            </button>
+            
+            <button
+              onClick={() => onCreate && onCreate(zone)}
+              className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-4 py-3 rounded-lg transition-all duration-200 hover:shadow-neon-blue"
+              title="Добавить бронь"
+            >
+              <Plus size={20} />
+              <span>Бронь</span>
             </button>
           </div>
         </div>

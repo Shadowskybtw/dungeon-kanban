@@ -178,3 +178,32 @@ export const clearAllBookings = async (branch) => {
   }
 };
 
+/**
+ * Отметить зону как убранную
+ * @param {number} zoneId - ID зоны
+ */
+export const markZoneCleaned = async (zoneId) => {
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'markCleaned',
+        zoneId
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Ошибка при отметке зоны как убранной:', error);
+    throw error;
+  }
+};
+

@@ -3,7 +3,7 @@ import Header from './components/Header';
 import ZoneCard from './components/ZoneCard';
 import EditModal from './components/EditModal';
 import { ToastContainer } from './components/Toast';
-import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, createBooking, clearAllBookings } from './services/api';
+import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, createBooking, clearAllBookings, markZoneCleaned } from './services/api';
 
 /**
  * Главный компонент приложения Канбан-доска
@@ -236,6 +236,24 @@ function App() {
     }
   };
 
+  // Обработка отметки зоны как убранной
+  const handleMarkCleaned = async (zoneId) => {
+    try {
+      // Оптимистичное обновление - убираем флаг уборки
+      setZones(prevZones => prevZones.map(zone => 
+        zone.id === zoneId ? { ...zone, needsCleaning: false } : zone
+      ));
+
+      await markZoneCleaned(zoneId);
+      addToast('✨ Зона убрана', 'success');
+      setTimeout(() => loadData(), 500);
+    } catch (error) {
+      console.error('Ошибка отметки зоны как убранной:', error);
+      addToast('❌ Не удалось отметить зону', 'error');
+      loadData();
+    }
+  };
+
   // Обработка ручного обновления
   const handleRefresh = () => {
     loadData(true);
@@ -306,6 +324,7 @@ function App() {
                   onDelete={handleDelete}
                   onCreate={handleCreate}
                   onHappyHoursToggle={handleHappyHoursToggle}
+                  onMarkCleaned={handleMarkCleaned}
                 />
               ))}
             </div>
