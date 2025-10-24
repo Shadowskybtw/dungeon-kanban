@@ -207,3 +207,34 @@ export const markZoneCleaned = async (zoneId) => {
   }
 };
 
+/**
+ * Завершить бронирование
+ * @param {number} bookingId - ID бронирования
+ * @param {string} completionType - Тип завершения: 'completed' (пришли) или 'no_show' (не пришли)
+ */
+export const completeBooking = async (bookingId, completionType) => {
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'complete',
+        bookingId,
+        completionType
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Ошибка при завершении брони:', error);
+    throw error;
+  }
+};
+

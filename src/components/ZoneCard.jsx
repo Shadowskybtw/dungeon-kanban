@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Edit2, Trash2, Users, Clock, Phone, Plus, CheckCircle } from 'lucide-react';
+import { Check, Edit2, Trash2, Users, Clock, Phone, Plus, CheckCircle, CheckSquare } from 'lucide-react';
 import HappyHoursIndicator from './HappyHoursIndicator';
 
 /**
  * Карточка зоны с бронированием
  */
-const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHoursToggle, onMarkCleaned }) => {
+const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHoursToggle, onMarkCleaned, onComplete }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const { name, capacity, isVip, bookings = [], needsCleaning } = zone;
@@ -185,29 +185,41 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
                   />
 
                   {/* Кнопки действий */}
-                  <div className="flex gap-2 mt-4 pt-3 border-t border-dungeon-gray">
-                    <button
-                      onClick={() => onStatusChange(booking.id, booking.status === 'active' ? 'pending' : 'active')}
-                      className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-neon-green"
-                      title="Подтвердить"
-                    >
-                      <Check size={18} />
-                    </button>
+                  <div className="space-y-2 mt-4 pt-3 border-t border-dungeon-gray">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => onStatusChange(booking.id, booking.status === 'active' ? 'pending' : 'active')}
+                        className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-neon-green"
+                        title="Подтвердить"
+                      >
+                        <Check size={18} />
+                      </button>
+                      
+                      <button
+                        onClick={() => onEdit(booking)}
+                        className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-neon-blue"
+                        title="Редактировать"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      
+                      <button
+                        onClick={() => onDelete(booking.id)}
+                        className="flex-1 flex items-center justify-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-lg transition-all duration-200"
+                        title="Удалить"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                     
+                    {/* Кнопка завершить */}
                     <button
-                      onClick={() => onEdit(booking)}
-                      className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-neon-blue"
-                      title="Редактировать"
+                      onClick={() => onComplete && onComplete(booking.id, booking.name)}
+                      className="w-full flex items-center justify-center gap-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 px-3 py-2 rounded-lg transition-all duration-200 font-semibold border border-purple-600/30"
+                      title="Завершить бронь"
                     >
-                      <Edit2 size={18} />
-                    </button>
-                    
-                    <button
-                      onClick={() => onDelete(booking.id)}
-                      className="flex-1 flex items-center justify-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-lg transition-all duration-200"
-                      title="Удалить"
-                    >
-                      <Trash2 size={18} />
+                      <CheckSquare size={18} />
+                      <span>Завершить</span>
                     </button>
                   </div>
                 </div>

@@ -46,6 +46,28 @@ export async function initDatabase() {
       )
     `;
 
+    // Создаем таблицу истории завершенных броней
+    await sql`
+      CREATE TABLE IF NOT EXISTS completed_bookings (
+        id SERIAL PRIMARY KEY,
+        original_booking_id INTEGER,
+        zone_id INTEGER,
+        zone_name VARCHAR(50) NOT NULL,
+        branch VARCHAR(100) NOT NULL,
+        time VARCHAR(10) NOT NULL,
+        booking_date DATE NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        guests INTEGER NOT NULL,
+        phone VARCHAR(20),
+        happy_hours BOOLEAN DEFAULT FALSE,
+        comment TEXT,
+        vr BOOLEAN DEFAULT FALSE,
+        hookah BOOLEAN DEFAULT FALSE,
+        completion_type VARCHAR(20) NOT NULL,
+        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
     console.log('✅ Таблицы созданы');
 
     // Добавляем поле needs_cleaning если его нет (миграция)
@@ -382,6 +404,74 @@ export async function markZoneCleaned(zoneId) {
     return { success: true };
   } catch (error) {
     console.error('Ошибка отметки зоны как убранной:', error);
+    throw error;
+  }
+}
+
+/**
+ * Завершить бронирование
+ * @param {number} bookingId - ID бронирования
+ * @param {string} completionType - Тип завершения: 'completed' (пришли) или 'no_show' (не пришли)
+ */
+export async function completeBooking(bookingId, completionType) {
+  try {
+    // Получаем данные брони перед удалением
+    const booking = await sql`
+      SELECT * FROM bookings 
+      WHERE id = ${bookingId}
+    `;
+
+    if (booking.length === 0) {
+      throw new Error('Booking not found');
+    }
+
+    const bookingData = booking[0];
+
+    // Сохраняем в историю
+    await sql`
+      INSERT INTO completed_bookings (
+        original_booking_id, zone_id, zone_name, branch, time, booking_date,
+        name, guests, phone, happy_hours, comment, vr, hookah, completion_type
+      ) VALUES (
+        ${bookingId},
+        ${bookingData.zone_id},
+        ${bookingData.zone_name},
+        ${bookingData.branch},
+        ${bookingData.time},
+        CURRENT_DATE,
+        ${bookingData.name},
+        ${bookingData.guests},
+        ${bookingData.phone},
+        ${bookingData.happy_hours},
+        ${bookingData.comment},
+        ${bookingData.vr},
+        ${bookingData.hookah},
+        ${completionType}
+      )
+    `;
+
+    // Удаляем бронь из активных
+    await sql`
+      DELETE FROM bookings 
+      WHERE id = ${bookingId}
+    `;
+
+    // Если гость пришел (completed), НЕ помечаем зону для уборки (они еще там)
+    // Если не пришел (no_show), помечаем зону для уборки
+    if (completionType === 'no_show') {
+      await sql`
+        UPDATE zones 
+        SET needs_cleaning = TRUE 
+        WHERE id = ${bookingData.zone_id}
+      `;
+      console.log(`🚫 Бронь #${bookingId} не пришла, зона помечена для уборки`);
+    } else {
+      console.log(`✅ Бронь #${bookingId} завершена (гости пришли)`);
+    }
+
+    return { success: true, completionType };
+  } catch (error) {
+    console.error('Ошибка завершения бронирования:', error);
     throw error;
   }
 }

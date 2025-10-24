@@ -3,7 +3,7 @@ import Header from './components/Header';
 import ZoneCard from './components/ZoneCard';
 import EditModal from './components/EditModal';
 import { ToastContainer } from './components/Toast';
-import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, createBooking, clearAllBookings, markZoneCleaned } from './services/api';
+import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, createBooking, clearAllBookings, markZoneCleaned, completeBooking } from './services/api';
 
 /**
  * Главный компонент приложения Канбан-доска
@@ -254,6 +254,40 @@ function App() {
     }
   };
 
+  // Обработка завершения бронирования
+  const handleComplete = async (bookingId, guestName) => {
+    const choice = confirm(
+      `Гость "${guestName}" пришел?\n\nОК = Пришел (завершить бронь)\nОтмена = Не пришел (не явка)`
+    );
+    
+    const completionType = choice ? 'completed' : 'no_show';
+    
+    try {
+      // Оптимистичное обновление - убираем бронь
+      setZones(prevZones => prevZones.map(zone => ({
+        ...zone,
+        bookings: zone.bookings ? zone.bookings.filter(b => b.id !== bookingId) : [],
+        booking: zone.bookings && zone.bookings.length > 0 && zone.bookings[0].id === bookingId 
+          ? (zone.bookings[1] || null) 
+          : zone.booking
+      })));
+
+      await completeBooking(bookingId, completionType);
+      
+      if (completionType === 'completed') {
+        addToast('✅ Бронь завершена (гость пришел)', 'success');
+      } else {
+        addToast('🚫 Бронь завершена (не явка)', 'error');
+      }
+      
+      setTimeout(() => loadData(), 500);
+    } catch (error) {
+      console.error('Ошибка завершения брони:', error);
+      addToast('❌ Не удалось завершить бронь', 'error');
+      loadData();
+    }
+  };
+
   // Обработка ручного обновления
   const handleRefresh = () => {
     loadData(true);
@@ -325,6 +359,7 @@ function App() {
                   onCreate={handleCreate}
                   onHappyHoursToggle={handleHappyHoursToggle}
                   onMarkCleaned={handleMarkCleaned}
+                  onComplete={handleComplete}
                 />
               ))}
             </div>

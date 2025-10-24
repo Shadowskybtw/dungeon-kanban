@@ -6,7 +6,8 @@ import {
   deleteBooking,
   updateBookingStatus,
   clearAllBookings,
-  markZoneCleaned
+  markZoneCleaned,
+  completeBooking
 } from './db.js';
 
 export default async function handler(req, res) {
@@ -84,6 +85,14 @@ export default async function handler(req, res) {
           return res.status(200).json({
             success: true,
             message: 'Zone marked as cleaned'
+          });
+
+        case 'complete':
+          const { completionType } = body;
+          await completeBooking(bookingId, completionType);
+          return res.status(200).json({
+            success: true,
+            message: `Booking completed as ${completionType}`
           });
 
         default:
