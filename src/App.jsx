@@ -3,7 +3,7 @@ import Header from './components/Header';
 import ZoneCard from './components/ZoneCard';
 import EditModal from './components/EditModal';
 import { ToastContainer } from './components/Toast';
-import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, createBooking } from './services/api';
+import { fetchBookings, updateBookingStatus, deleteBooking, updateBooking, createBooking, clearAllBookings } from './services/api';
 
 /**
  * Главный компонент приложения Канбан-доска
@@ -216,12 +216,23 @@ function App() {
   };
 
   // Обработка очистки всех бронирований
-  const handleClearAll = () => {
-    if (confirm('Вы уверены, что хотите очистить все бронирования?')) {
-      // В реальном приложении здесь будет вызов API для массового удаления
-      console.log('Очистка всех бронирований');
-      addToast('🗑️ Все брони очищены', 'success');
-      loadData();
+  const handleClearAll = async () => {
+    if (confirm(`Вы уверены, что хотите удалить ВСЕ бронирования на филиале "${selectedBranch}"?`)) {
+      try {
+        // Оптимистичное обновление - убираем все брони
+        setZones(prevZones => prevZones.map(zone => ({
+          ...zone,
+          booking: null
+        })));
+
+        await clearAllBookings(selectedBranch);
+        addToast('🗑️ Все брони очищены', 'success');
+        setTimeout(() => loadData(), 500);
+      } catch (error) {
+        console.error('Ошибка очистки всех броней:', error);
+        addToast('❌ Не удалось очистить брони', 'error');
+        loadData();
+      }
     }
   };
 

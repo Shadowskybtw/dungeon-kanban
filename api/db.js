@@ -226,29 +226,45 @@ export async function createBooking(zoneId, zoneName, branch, data) {
  */
 export async function updateBooking(bookingId, data) {
   try {
-    const updates = [];
-    const values = [];
+    // Читаем текущее бронирование
+    const current = await sql`SELECT * FROM bookings WHERE id = ${bookingId}`;
+    if (current.length === 0) {
+      throw new Error('Booking not found');
+    }
 
-    if (data.time !== undefined) updates.push(`time = $${updates.length + 1}`), values.push(data.time);
-    if (data.name !== undefined) updates.push(`name = $${updates.length + 1}`), values.push(data.name);
-    if (data.guests !== undefined) updates.push(`guests = $${updates.length + 1}`), values.push(data.guests);
-    if (data.phone !== undefined) updates.push(`phone = $${updates.length + 1}`), values.push(data.phone);
-    if (data.status !== undefined) updates.push(`status = $${updates.length + 1}`), values.push(data.status);
-    if (data.happyHours !== undefined) updates.push(`happy_hours = $${updates.length + 1}`), values.push(data.happyHours);
-    if (data.comment !== undefined) updates.push(`comment = $${updates.length + 1}`), values.push(data.comment);
-    if (data.vr !== undefined) updates.push(`vr = $${updates.length + 1}`), values.push(data.vr);
-    if (data.hookah !== undefined) updates.push(`hookah = $${updates.length + 1}`), values.push(data.hookah);
+    // Обновляем только переданные поля
+    const updated = {
+      time: data.time !== undefined ? data.time : current[0].time,
+      name: data.name !== undefined ? data.name : current[0].name,
+      guests: data.guests !== undefined ? data.guests : current[0].guests,
+      phone: data.phone !== undefined ? data.phone : current[0].phone,
+      status: data.status !== undefined ? data.status : current[0].status,
+      happy_hours: data.happyHours !== undefined ? data.happyHours : current[0].happy_hours,
+      comment: data.comment !== undefined ? data.comment : current[0].comment,
+      vr: data.vr !== undefined ? data.vr : current[0].vr,
+      hookah: data.hookah !== undefined ? data.hookah : current[0].hookah,
+    };
 
-    updates.push(`updated_at = CURRENT_TIMESTAMP`);
-    values.push(bookingId);
+    console.log(`📝 Обновление брони #${bookingId}:`, data);
 
     const result = await sql`
       UPDATE bookings 
-      SET ${sql.unsafe(updates.join(', '))}
+      SET 
+        time = ${updated.time},
+        name = ${updated.name},
+        guests = ${updated.guests},
+        phone = ${updated.phone},
+        status = ${updated.status},
+        happy_hours = ${updated.happy_hours},
+        comment = ${updated.comment},
+        vr = ${updated.vr},
+        hookah = ${updated.hookah},
+        updated_at = CURRENT_TIMESTAMP
       WHERE id = ${bookingId}
       RETURNING *
     `;
 
+    console.log(`✅ Бронь обновлена:`, result[0]);
     return result[0];
   } catch (error) {
     console.error('Ошибка обновления бронирования:', error);
@@ -288,6 +304,24 @@ export async function updateBookingStatus(bookingId, status) {
     return result[0];
   } catch (error) {
     console.error('Ошибка обновления статуса:', error);
+    throw error;
+  }
+}
+
+/**
+ * Удалить все бронирования в филиале
+ */
+export async function clearAllBookings(branch) {
+  try {
+    const result = await sql`
+      DELETE FROM bookings 
+      WHERE branch = ${branch}
+    `;
+
+    console.log(`🗑️ Удалено броней в филиале ${branch}: ${result.count || 0}`);
+    return { success: true, deletedCount: result.count || 0 };
+  } catch (error) {
+    console.error('Ошибка очистки всех броней:', error);
     throw error;
   }
 }

@@ -149,3 +149,32 @@ export const deleteBooking = async (bookingId) => {
   }
 };
 
+/**
+ * Очистка всех бронирований в филиале
+ * @param {string} branch - Название филиала
+ */
+export const clearAllBookings = async (branch) => {
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'clearAll',
+        branch
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Ошибка при очистке всех броней:', error);
+    throw error;
+  }
+};
+

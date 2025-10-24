@@ -4,7 +4,8 @@ import {
   createBooking, 
   updateBooking, 
   deleteBooking,
-  updateBookingStatus 
+  updateBookingStatus,
+  clearAllBookings
 } from './db.js';
 
 export default async function handler(req, res) {
@@ -67,6 +68,14 @@ export default async function handler(req, res) {
           return res.status(200).json({
             success: true,
             message: 'Booking deleted'
+          });
+
+        case 'clearAll':
+          const cleared = await clearAllBookings(branch);
+          return res.status(200).json({
+            success: true,
+            message: `Cleared ${cleared.deletedCount} bookings from ${branch}`,
+            deletedCount: cleared.deletedCount
           });
 
         default:
