@@ -5,9 +5,10 @@ import HappyHoursIndicator from './HappyHoursIndicator';
 /**
  * Карточка зоны с бронированием
  */
-const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHoursToggle, onMarkCleaned, onComplete }) => {
+const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHoursToggle, onMarkCleaned, onComplete, onMoveBooking }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isDragOver, setIsDragOver] = useState(false);
   const { name, capacity, isVip, bookings = [], needsCleaning } = zone;
   
   // Обновляем текущее время каждую минуту
@@ -79,6 +80,44 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
     );
   };
 
+  // Обработчики drag & drop
+  const handleDragStart = (e, booking) => {
+    e.dataTransfer.setData('application/json', JSON.stringify({
+      bookingId: booking.id,
+      sourceZoneId: zone.id,
+      booking: booking
+    }));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      const { bookingId, sourceZoneId, booking } = data;
+      
+      if (sourceZoneId !== zone.id && onMoveBooking) {
+        onMoveBooking(bookingId, sourceZoneId, zone.id, booking);
+      }
+    } catch (error) {
+      console.error('Ошибка при переносе брони:', error);
+    }
+  };
+
   return (
     <div
       className={`
@@ -87,9 +126,13 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
         ${isVip ? 'shadow-neon-purple' : ''}
         ${isHovered && hasBookings ? 'transform -translate-y-1 shadow-2xl' : ''}
         ${hasEndingHappyHours() ? 'animate-happy-ending' : ''}
+        ${isDragOver ? 'border-dungeon-neon-blue border-2 bg-dungeon-neon-blue/10' : ''}
       `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       {/* VIP индикатор */}
       {isVip && (
@@ -123,12 +166,15 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
             {bookings.map((booking, index) => (
               <div 
                 key={booking.id} 
+                draggable
+                onDragStart={(e) => handleDragStart(e, booking)}
                 className={`
-                  p-1.5 rounded border transition-all
+                  p-1.5 rounded border transition-all cursor-move hover:shadow-lg
                   ${booking.status === 'active' ? 'border-dungeon-neon-green/50 bg-emerald-900/10' :
                     booking.status === 'pending' ? 'border-red-500/50 bg-red-900/10' :
                     'border-dungeon-gray bg-dungeon-darker/30'}
                 `}
+                title="Перетащите для переноса в другую зону"
               >
                 <div className="space-y-1">
                   {/* Статус и время */}
@@ -256,15 +302,25 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
           </div>
         </div>
       ) : (
-        <button
-          onClick={() => onCreate && onCreate(zone)}
+        <div 
           className="w-full text-center py-3 text-gray-500 hover:text-dungeon-neon-green hover:bg-dungeon-neon-green/5 rounded transition-all duration-200 group"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
-          <div className="flex flex-col items-center gap-0.5">
+          <button
+            onClick={() => onCreate && onCreate(zone)}
+            className="w-full h-full flex flex-col items-center gap-0.5"
+          >
             <div className="text-2xl mb-0.5 group-hover:scale-110 transition-transform">+</div>
             <p className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">Добавить</p>
-          </div>
-        </button>
+          </button>
+          {isDragOver && (
+            <div className="absolute inset-0 flex items-center justify-center bg-dungeon-neon-blue/20 border-2 border-dashed border-dungeon-neon-blue rounded">
+              <span className="text-dungeon-neon-blue font-semibold text-xs">Переместить сюда</span>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

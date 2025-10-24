@@ -291,6 +291,39 @@ function App() {
     }
   };
 
+  // Обработка переноса брони между зонами
+  const handleMoveBooking = async (bookingId, sourceZoneId, targetZoneId, booking) => {
+    try {
+      // Оптимистичное обновление UI
+      setZones(prevZones => prevZones.map(zone => {
+        if (zone.id === sourceZoneId) {
+          // Убираем бронь из исходной зоны
+          return {
+            ...zone,
+            bookings: zone.bookings ? zone.bookings.filter(b => b.id !== bookingId) : []
+          };
+        } else if (zone.id === targetZoneId) {
+          // Добавляем бронь в целевую зону
+          return {
+            ...zone,
+            bookings: [...(zone.bookings || []), { ...booking, zone_id: targetZoneId }]
+          };
+        }
+        return zone;
+      }));
+
+      // Обновляем бронь в базе данных
+      await updateBooking(bookingId, { zone_id: targetZoneId });
+      addToast(`✅ Бронь "${booking.name}" перенесена в ${zones.find(z => z.id === targetZoneId)?.name}`, 'success');
+      
+      setTimeout(() => loadData(), 500);
+    } catch (error) {
+      console.error('Ошибка переноса брони:', error);
+      addToast('❌ Не удалось перенести бронь', 'error');
+      loadData();
+    }
+  };
+
   // Обработка ручного обновления
   const handleRefresh = () => {
     loadData(true);
@@ -356,17 +389,18 @@ function App() {
             ) : (
               <div className="grid gap-2 zones-grid">
                 {filteredZones.map(zone => (
-                  <ZoneCard
-                    key={zone.id}
-                    zone={zone}
-                    onStatusChange={handleStatusChange}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onCreate={handleCreate}
-                    onHappyHoursToggle={handleHappyHoursToggle}
-                    onMarkCleaned={handleMarkCleaned}
-                    onComplete={handleComplete}
-                  />
+                <ZoneCard
+                  key={zone.id}
+                  zone={zone}
+                  onStatusChange={handleStatusChange}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onCreate={handleCreate}
+                  onHappyHoursToggle={handleHappyHoursToggle}
+                  onMarkCleaned={handleMarkCleaned}
+                  onComplete={handleComplete}
+                  onMoveBooking={handleMoveBooking}
+                />
                 ))}
               </div>
             )}
