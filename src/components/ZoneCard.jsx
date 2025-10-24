@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, Edit2, Trash2, Users, Clock, Phone, Plus, CheckCircle } from 'lucide-react';
 import HappyHoursIndicator from './HappyHoursIndicator';
 
@@ -7,10 +7,38 @@ import HappyHoursIndicator from './HappyHoursIndicator';
  */
 const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHoursToggle, onMarkCleaned }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const { name, capacity, isVip, bookings = [], needsCleaning } = zone;
+  
+  // Обновляем текущее время каждую минуту
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Обновление каждую минуту
+    return () => clearInterval(timer);
+  }, []);
   
   // Проверяем, есть ли брони
   const hasBookings = bookings && bookings.length > 0;
+  
+  // Проверяем, есть ли активные счастливые часы, которые скоро закончатся
+  const hasEndingHappyHours = () => {
+    if (!hasBookings) return false;
+    
+    // Получаем текущее время в часовом поясе Самары (UTC+4)
+    const samaraTime = new Date(currentTime.toLocaleString('en-US', { timeZone: 'Europe/Samara' }));
+    const currentHour = samaraTime.getHours();
+    const currentMinute = samaraTime.getMinutes();
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+    
+    // Проверяем, есть ли брони с активными счастливыми часами
+    const hasActiveHappyHours = bookings.some(b => b.happyHours && b.status === 'active');
+    
+    // 18:50 - 19:00 (1130 - 1140 минут от полуночи)
+    const isEndingTime = currentTimeInMinutes >= 1130 && currentTimeInMinutes < 1140;
+    
+    return hasActiveHappyHours && isEndingTime;
+  };
 
   // Определяем статус и цвет карточки
   const getCardStyle = () => {
@@ -61,6 +89,7 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
         ${getCardStyle()}
         ${isVip ? 'shadow-neon-purple' : ''}
         ${isHovered && hasBookings ? 'transform -translate-y-1 shadow-2xl' : ''}
+        ${hasEndingHappyHours() ? 'animate-happy-ending' : ''}
       `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
