@@ -65,3 +65,35 @@ body {
   animation: happy-hours-ending 1s ease-in-out infinite;
 }
 
+/* Адаптивная сетка зон для оптимального использования пространства */
+.zones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  max-width: 100%;
+}
+
+/* Для больших экранов с 22 зонами */
+@media (min-width: 1024px) {
+  .zones-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .zones-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+
+@media (min-width: 1536px) {
+  .zones-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (min-width: 1920px) {
+  .zones-grid {
+    grid-template-columns: repeat(10, 1fr);
+  }
+}
+

@@ -312,7 +312,7 @@ function App() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dungeon-dark via-dungeon-darker to-dungeon-dark">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-dungeon-dark via-dungeon-darker to-dungeon-dark flex flex-col">
       {/* Фоновые эффекты */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-dungeon-neon-green/5 rounded-full blur-3xl animate-pulse"></div>
@@ -321,103 +321,80 @@ function App() {
       </div>
 
       {/* Контент */}
-      <div className="relative z-10">
-        {/* Заголовок */}
-        <Header
-          selectedBranch={selectedBranch}
-          onBranchChange={handleBranchChange}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          onRefresh={handleRefresh}
-          onClearAll={handleClearAll}
-          lastUpdate={lastUpdate}
-          totalZones={zones.length}
-        />
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Заголовок - фиксированная высота */}
+        <div className="flex-none">
+          <Header
+            selectedBranch={selectedBranch}
+            onBranchChange={handleBranchChange}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            onRefresh={handleRefresh}
+            onClearAll={handleClearAll}
+            lastUpdate={lastUpdate}
+            totalZones={zones.length}
+          />
+        </div>
 
-        {/* Основная сетка зон */}
-        <main className="container mx-auto px-4 py-8">
-          {isLoading && zones.length === 0 ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-dungeon-neon-green border-t-transparent mb-4"></div>
-                <p className="text-gray-400">Загрузка данных...</p>
-              </div>
-            </div>
-          ) : filteredZones.length === 0 ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="text-6xl mb-4">🔍</div>
-                <p className="text-gray-400 text-lg">Нет зон, соответствующих фильтру</p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-              {filteredZones.map(zone => (
-                <ZoneCard
-                  key={zone.id}
-                  zone={zone}
-                  onStatusChange={handleStatusChange}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onCreate={handleCreate}
-                  onHappyHoursToggle={handleHappyHoursToggle}
-                  onMarkCleaned={handleMarkCleaned}
-                  onComplete={handleComplete}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Статистика */}
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-dungeon-card/50 backdrop-blur-sm rounded-xl p-6 border-2 border-dungeon-neon-green/30">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-dungeon-neon-green/20 flex items-center justify-center">
-                  <span className="text-2xl">✅</span>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">Активные брони</p>
-                  <p className="text-2xl font-bold text-dungeon-neon-green">
-                    {zones.filter(z => z.booking?.status === 'active').length}
-                  </p>
+        {/* Основная сетка зон - растягивается на оставшееся пространство */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="container mx-auto px-4 py-4">
+            {isLoading && zones.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-dungeon-neon-green border-t-transparent mb-4"></div>
+                  <p className="text-gray-400">Загрузка данных...</p>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-dungeon-card/50 backdrop-blur-sm rounded-xl p-6 border-2 border-yellow-500/30">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                  <span className="text-2xl">⏳</span>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">Ожидающие</p>
-                  <p className="text-2xl font-bold text-yellow-500">
-                    {zones.filter(z => z.booking?.status === 'pending').length}
-                  </p>
+            ) : filteredZones.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="text-6xl mb-4">🔍</div>
+                  <p className="text-gray-400 text-lg">Нет зон, соответствующих фильтру</p>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-dungeon-card/50 backdrop-blur-sm rounded-xl p-6 border-2 border-gray-500/30">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gray-500/20 flex items-center justify-center">
-                  <span className="text-2xl">📭</span>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">Свободные зоны</p>
-                  <p className="text-2xl font-bold text-gray-300">
-                    {zones.filter(z => !z.booking).length}
-                  </p>
-                </div>
+            ) : (
+              <div className="grid gap-3 zones-grid">
+                {filteredZones.map(zone => (
+                  <ZoneCard
+                    key={zone.id}
+                    zone={zone}
+                    onStatusChange={handleStatusChange}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onCreate={handleCreate}
+                    onHappyHoursToggle={handleHappyHoursToggle}
+                    onMarkCleaned={handleMarkCleaned}
+                    onComplete={handleComplete}
+                  />
+                ))}
               </div>
-            </div>
+            )}
           </div>
         </main>
 
-        {/* Футер */}
-        <footer className="container mx-auto px-4 py-8 text-center text-gray-500 text-sm">
-          <p>© 2025 DUNGEON. Система управления бронированиями. v1.0.3</p>
-          <p className="mt-2">Автообновление каждые 30 секунд</p>
+        {/* Футер - компактный */}
+        <footer className="flex-none px-4 py-2 text-center text-gray-500 text-xs border-t border-dungeon-gray/20">
+          <div className="container mx-auto flex items-center justify-between">
+            <p>© 2025 DUNGEON v1.0.3</p>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <span className="text-dungeon-neon-green">✅</span>
+                  <span className="font-semibold text-dungeon-neon-green">{zones.filter(z => z.booking?.status === 'active').length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-red-500">⏳</span>
+                  <span className="font-semibold text-red-500">{zones.filter(z => z.booking?.status === 'pending').length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-gray-400">📭</span>
+                  <span className="font-semibold text-gray-400">{zones.filter(z => !z.booking).length}</span>
+                </div>
+              </div>
+              <p>Автообновление: 30 сек</p>
+            </div>
+          </div>
         </footer>
       </div>
 

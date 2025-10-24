@@ -82,7 +82,7 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
   return (
     <div
       className={`
-        relative rounded-xl border-2 p-4 transition-all duration-300 animate-fade-in
+        relative rounded-lg border-2 p-2 transition-all duration-300 animate-fade-in
         ${getCardStyle()}
         ${isVip ? 'shadow-neon-purple' : ''}
         ${isHovered && hasBookings ? 'transform -translate-y-1 shadow-2xl' : ''}
@@ -93,83 +93,83 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
     >
       {/* VIP индикатор */}
       {isVip && (
-        <div className="absolute -top-2 -right-2 bg-dungeon-neon-purple text-white px-3 py-1 rounded-full text-xs font-bold shadow-neon-purple">
+        <div className="absolute -top-1 -right-1 bg-dungeon-neon-purple text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-neon-purple">
           VIP
         </div>
       )}
 
       {/* Заголовок зоны */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className={`font-orbitron font-bold text-lg ${isVip ? 'text-dungeon-neon-purple' : 'text-dungeon-neon-green'}`}>
+      <div className="flex items-center justify-between mb-1.5">
+        <h3 className={`font-orbitron font-bold text-sm ${isVip ? 'text-dungeon-neon-purple' : 'text-dungeon-neon-green'}`}>
           {name}
         </h3>
         {hasBookings && bookings.length > 1 && (
-          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-dungeon-neon-blue/20 text-dungeon-neon-blue border border-dungeon-neon-blue/50">
-            {bookings.length} броней
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-dungeon-neon-blue/20 text-dungeon-neon-blue">
+            {bookings.length}
           </span>
         )}
       </div>
 
       {/* Вместимость */}
-      <div className="flex items-center gap-2 mb-3 text-gray-400">
-        <Users size={16} />
-        <span className="text-sm">До {capacity} чел.</span>
+      <div className="flex items-center gap-1.5 mb-1.5 text-gray-400">
+        <Users size={12} />
+        <span className="text-xs">До {capacity}</span>
       </div>
 
       {/* Информация о бронировании */}
       {hasBookings ? (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {/* Показываем все брони */}
-          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
             {bookings.map((booking, index) => (
               <div 
                 key={booking.id} 
                 className={`
-                  p-4 rounded-lg border-2 transition-all
+                  p-2 rounded-md border transition-all
                   ${booking.status === 'active' ? 'border-dungeon-neon-green/50 bg-emerald-900/10' :
                     booking.status === 'pending' ? 'border-red-500/50 bg-red-900/10' :
                     'border-dungeon-gray bg-dungeon-darker/30'}
                 `}
               >
-                <div className="space-y-3">
+                <div className="space-y-1.5">
                   {/* Статус и время */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-white">
-                      <Clock size={18} className="text-dungeon-neon-blue" />
-                      <span className="font-semibold text-lg">{booking.time}</span>
+                    <div className="flex items-center gap-1.5 text-white">
+                      <Clock size={14} className="text-dungeon-neon-blue" />
+                      <span className="font-semibold text-sm">{booking.time}</span>
                     </div>
                     {getStatusBadge(booking.status)}
                   </div>
 
-                  {/* Имя гостя */}
-                  <div className="text-white font-medium">
-                    {booking.name}
-                  </div>
-
-                  {/* Количество гостей */}
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <Users size={16} />
-                    <span>{booking.guests} {booking.guests === 1 ? 'гость' : 'гостей'}</span>
+                  {/* Имя гостя и количество */}
+                  <div className="flex items-center justify-between">
+                    <div className="text-white font-medium text-sm truncate">
+                      {booking.name}
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-300 text-xs flex-shrink-0">
+                      <Users size={12} />
+                      <span>{booking.guests}</span>
+                    </div>
                   </div>
 
                   {/* Телефон */}
                   {booking.phone && (
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <Phone size={16} />
-                      <span className="text-sm">{booking.phone}</span>
+                    <div className="flex items-center gap-1.5 text-gray-300">
+                      <Phone size={12} />
+                      <span className="text-xs">{booking.phone}</span>
                     </div>
                   )}
 
                   {/* VR и Кальян бейджи */}
                   {(booking.vr || booking.hookah) && (
-                    <div className="flex items-center gap-2 flex-wrap mt-2">
+                    <div className="flex items-center gap-1 flex-wrap">
                       {booking.vr && (
-                        <span className="px-2 py-1 rounded-md text-xs font-semibold bg-dungeon-neon-purple/20 text-dungeon-neon-purple border border-dungeon-neon-purple/50">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-dungeon-neon-purple/20 text-dungeon-neon-purple border border-dungeon-neon-purple/50">
                           🥽 VR
                         </span>
                       )}
                       {booking.hookah && (
-                        <span className="px-2 py-1 rounded-md text-xs font-semibold bg-dungeon-neon-blue/20 text-dungeon-neon-blue border border-dungeon-neon-blue/50">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-dungeon-neon-blue/20 text-dungeon-neon-blue border border-dungeon-neon-blue/50">
                           💨 Кальян
                         </span>
                       )}
@@ -185,39 +185,39 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
                   />
 
                   {/* Кнопки действий */}
-                  <div className="space-y-1.5 mt-3 pt-2 border-t border-dungeon-gray">
-                    <div className="flex gap-1.5">
+                  <div className="space-y-1 mt-2 pt-1.5 border-t border-dungeon-gray">
+                    <div className="flex gap-1">
                       <button
                         onClick={() => onStatusChange(booking.id, booking.status === 'active' ? 'pending' : 'active')}
-                        className="flex-1 flex items-center justify-center bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-2 py-1.5 rounded transition-all"
+                        className="flex-1 flex items-center justify-center bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-1.5 py-1 rounded transition-all"
                         title="Подтвердить"
                       >
-                        <Check size={16} />
+                        <Check size={14} />
                       </button>
                       
                       <button
                         onClick={() => onEdit(booking)}
-                        className="flex-1 flex items-center justify-center bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-2 py-1.5 rounded transition-all"
+                        className="flex-1 flex items-center justify-center bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-1.5 py-1 rounded transition-all"
                         title="Редактировать"
                       >
-                        <Edit2 size={16} />
+                        <Edit2 size={14} />
                       </button>
                       
                       <button
                         onClick={() => onDelete(booking.id, booking.name)}
-                        className="flex-1 flex items-center justify-center bg-red-500/20 hover:bg-red-500/30 text-red-400 px-2 py-1.5 rounded transition-all"
+                        className="flex-1 flex items-center justify-center bg-red-500/20 hover:bg-red-500/30 text-red-400 px-1.5 py-1 rounded transition-all"
                         title="Удалить"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                       
                       {/* Кнопка завершить - в той же строке */}
                       <button
                         onClick={() => onComplete && onComplete(booking.id, booking.name)}
-                        className="flex-1 flex items-center justify-center bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 px-2 py-1.5 rounded transition-all border border-purple-600/30"
+                        className="flex-1 flex items-center justify-center bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 px-1.5 py-1 rounded transition-all border border-purple-600/30"
                         title="Завершить"
                       >
-                        <CheckSquare size={16} />
+                        <CheckSquare size={14} />
                       </button>
                     </div>
                   </div>
@@ -229,36 +229,36 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
           {/* Кнопка добавить еще бронь */}
           <button
             onClick={() => onCreate && onCreate(zone)}
-            className="w-full flex items-center justify-center gap-2 bg-dungeon-neon-green/10 hover:bg-dungeon-neon-green/20 text-dungeon-neon-green px-4 py-2 rounded-lg transition-all duration-200 border-2 border-dashed border-dungeon-neon-green/30 hover:border-dungeon-neon-green/50 font-semibold"
+            className="w-full flex items-center justify-center gap-1.5 bg-dungeon-neon-green/10 hover:bg-dungeon-neon-green/20 text-dungeon-neon-green px-2 py-1.5 rounded-md transition-all duration-200 border border-dashed border-dungeon-neon-green/30 hover:border-dungeon-neon-green/50 text-xs font-semibold"
           >
-            <Plus size={18} />
-            <span>Добавить еще бронь</span>
+            <Plus size={14} />
+            <span>Еще бронь</span>
           </button>
         </div>
       ) : needsCleaning ? (
-        <div className="space-y-4">
-          <div className="text-center py-6">
-            <div className="text-5xl mb-3 animate-bounce">🧹</div>
-            <p className="text-orange-400 font-semibold text-lg mb-2">Требует уборки!</p>
-            <p className="text-gray-400 text-sm">Зона освободилась, необходима уборка</p>
+        <div className="space-y-2">
+          <div className="text-center py-3">
+            <div className="text-3xl mb-1.5 animate-bounce">🧹</div>
+            <p className="text-orange-400 font-semibold text-xs mb-1">Требует уборки!</p>
+            <p className="text-gray-400 text-[10px]">Зона освободилась</p>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <button
               onClick={() => onMarkCleaned && onMarkCleaned(zone.id)}
-              className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-4 py-3 rounded-lg transition-all duration-200 hover:shadow-neon-green font-semibold"
+              className="flex-1 flex items-center justify-center gap-1 bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-2 py-1.5 rounded-md transition-all duration-200 hover:shadow-neon-green text-xs font-semibold"
               title="Отметить как убранную"
             >
-              <CheckCircle size={20} />
+              <CheckCircle size={14} />
               <span>Убрали</span>
             </button>
             
             <button
               onClick={() => onCreate && onCreate(zone)}
-              className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-4 py-3 rounded-lg transition-all duration-200 hover:shadow-neon-blue"
+              className="flex-1 flex items-center justify-center gap-1 bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-2 py-1.5 rounded-md transition-all duration-200 hover:shadow-neon-blue text-xs"
               title="Добавить бронь"
             >
-              <Plus size={20} />
+              <Plus size={14} />
               <span>Бронь</span>
             </button>
           </div>
@@ -266,14 +266,14 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
       ) : (
         <button
           onClick={() => onCreate && onCreate(zone)}
-          className="w-full text-center py-8 text-gray-500 hover:text-dungeon-neon-green hover:bg-dungeon-neon-green/5 rounded-lg transition-all duration-200 group"
+          className="w-full text-center py-4 text-gray-500 hover:text-dungeon-neon-green hover:bg-dungeon-neon-green/5 rounded-md transition-all duration-200 group"
         >
-          <div className="flex flex-col items-center gap-2">
-            <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">📭</div>
-            <p className="text-sm">Нет брони</p>
-            <div className="flex items-center gap-1 text-dungeon-neon-green opacity-0 group-hover:opacity-100 transition-opacity">
-              <Plus size={16} />
-              <span className="text-xs font-semibold">Добавить бронь</span>
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">📭</div>
+            <p className="text-xs">Нет брони</p>
+            <div className="flex items-center gap-0.5 text-dungeon-neon-green opacity-0 group-hover:opacity-100 transition-opacity">
+              <Plus size={12} />
+              <span className="text-[10px] font-semibold">Добавить</span>
             </div>
           </div>
         </button>
