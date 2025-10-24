@@ -7,21 +7,26 @@ import HappyHoursIndicator from './HappyHoursIndicator';
  */
 const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHoursToggle, onMarkCleaned }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-  const { name, capacity, isVip, booking, needsCleaning } = zone;
+  const { name, capacity, isVip, bookings = [], needsCleaning } = zone;
+  
+  // Проверяем, есть ли брони
+  const hasBookings = bookings && bookings.length > 0;
 
   // Определяем статус и цвет карточки
   const getCardStyle = () => {
     // Если зона требует уборки
-    if (!booking && needsCleaning) {
+    if (!hasBookings && needsCleaning) {
       return 'bg-gradient-to-br from-orange-900/50 to-dungeon-card border-orange-500 shadow-orange-500/30 animate-pulse';
     }
     
-    if (!booking) {
+    if (!hasBookings) {
       return 'bg-dungeon-card border-dungeon-gray';
     }
     
-    switch (booking.status) {
+    // Если есть брони, определяем цвет по первой активной брони
+    const activeBooking = bookings.find(b => b.status === 'active') || bookings[0];
+    
+    switch (activeBooking?.status) {
       case 'active':
         return 'bg-gradient-to-br from-emerald-900/40 to-dungeon-card border-dungeon-neon-green';
       case 'pending':
@@ -33,16 +38,14 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
     }
   };
 
-  const getStatusBadge = () => {
-    if (!booking) return null;
-    
+  const getStatusBadge = (status) => {
     const badges = {
       active: { text: 'Активна', color: 'bg-dungeon-neon-green text-dungeon-darker' },
       pending: { text: 'Ожидание', color: 'bg-red-500 text-white' },
       cancelled: { text: 'Отменена', color: 'bg-red-500 text-white' },
     };
 
-    const badge = badges[booking.status] || badges.active;
+    const badge = badges[status] || badges.active;
     
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${badge.color}`}>
@@ -57,10 +60,11 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
         relative rounded-xl border-2 p-4 transition-all duration-300 animate-fade-in
         ${getCardStyle()}
         ${isVip ? 'shadow-neon-purple' : ''}
-        ${isHovered && booking ? 'transform -translate-y-1 shadow-2xl' : ''}
+        ${isHovered && hasBookings ? 'transform -translate-y-1 shadow-2xl' : ''}
       `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+    }
     >
       {/* VIP индикатор */}
       {isVip && (
@@ -74,7 +78,11 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
         <h3 className={`font-orbitron font-bold text-lg ${isVip ? 'text-dungeon-neon-purple' : 'text-dungeon-neon-green'}`}>
           {name}
         </h3>
-        {getStatusBadge()}
+        {hasBookings && bookings.length > 1 && (
+          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-dungeon-neon-blue/20 text-dungeon-neon-blue border border-dungeon-neon-blue/50">
+            {bookings.length} броней
+          </span>
+        )}
       </div>
 
       {/* Вместимость */}
@@ -84,113 +92,116 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
       </div>
 
       {/* Информация о бронировании */}
-      {booking ? (
+      {hasBookings ? (
         <div className="space-y-3">
-          {/* Время */}
-          <div className="flex items-center gap-2 text-white">
-            <Clock size={18} className="text-dungeon-neon-blue" />
-            <span className="font-semibold text-lg">{booking.time}</span>
-          </div>
-
-          {/* Имя гостя с tooltip */}
-          <div 
-            className="relative"
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
-          >
-            <div className="text-white font-medium cursor-pointer hover:text-dungeon-neon-green transition-colors">
-              {booking.name}
-            </div>
-            
-            {/* Tooltip */}
-            {showTooltip && (
-              <div className="absolute z-50 bottom-full left-0 mb-2 p-3 bg-dungeon-darker border-2 border-dungeon-neon-green rounded-lg shadow-neon-green min-w-[200px] animate-fade-in">
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-dungeon-neon-green">
-                    <Clock size={14} />
-                    <span className="font-semibold">{booking.time}</span>
+          {/* Показываем все брони */}
+          <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+            {bookings.map((booking, index) => (
+              <div 
+                key={booking.id} 
+                className={`
+                  p-3 rounded-lg border-2 transition-all
+                  ${booking.status === 'active' ? 'border-dungeon-neon-green/50 bg-emerald-900/10' :
+                    booking.status === 'pending' ? 'border-red-500/50 bg-red-900/10' :
+                    'border-dungeon-gray bg-dungeon-darker/30'}
+                `}
+              >
+                <div className="space-y-2">
+                  {/* Статус и время */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-white">
+                      <Clock size={16} className="text-dungeon-neon-blue" />
+                      <span className="font-semibold">{booking.time}</span>
+                    </div>
+                    {getStatusBadge(booking.status)}
                   </div>
-                  {booking.phone && (
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <Phone size={14} />
-                      <span>{booking.phone}</span>
+
+                  {/* Имя гостя */}
+                  <div className="text-white font-medium text-sm">
+                    {booking.name}
+                  </div>
+
+                  {/* Количество гостей и телефон */}
+                  <div className="flex items-center gap-3 text-gray-400 text-xs">
+                    <div className="flex items-center gap-1">
+                      <Users size={14} />
+                      <span>{booking.guests}</span>
+                    </div>
+                    {booking.phone && (
+                      <div className="flex items-center gap-1">
+                        <Phone size={14} />
+                        <span>{booking.phone}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* VR и Кальян бейджи */}
+                  {(booking.vr || booking.hookah) && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {booking.vr && (
+                        <span className="px-2 py-0.5 rounded text-xs font-semibold bg-dungeon-neon-purple/20 text-dungeon-neon-purple">
+                          🥽 VR
+                        </span>
+                      )}
+                      {booking.hookah && (
+                        <span className="px-2 py-0.5 rounded text-xs font-semibold bg-dungeon-neon-blue/20 text-dungeon-neon-blue">
+                          💨 Кальян
+                        </span>
+                      )}
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <Users size={14} />
-                    <span>{booking.guests} гостей</span>
+
+                  {/* Индикатор счастливых часов */}
+                  {booking.happyHours && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <HappyHoursIndicator
+                        time={booking.time}
+                        isHappyHours={booking.happyHours}
+                        isActive={booking.happyHours}
+                        onToggle={() => onHappyHoursToggle && onHappyHoursToggle(booking.id, !booking.happyHours)}
+                      />
+                    </div>
+                  )}
+
+                  {/* Кнопки действий */}
+                  <div className="flex gap-1 mt-2 pt-2 border-t border-dungeon-gray">
+                    <button
+                      onClick={() => onStatusChange(booking.id, booking.status === 'active' ? 'pending' : 'active')}
+                      className="flex-1 flex items-center justify-center bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-2 py-1.5 rounded transition-all"
+                      title="Подтвердить"
+                    >
+                      <Check size={16} />
+                    </button>
+                    
+                    <button
+                      onClick={() => onEdit(booking)}
+                      className="flex-1 flex items-center justify-center bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-2 py-1.5 rounded transition-all"
+                      title="Редактировать"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    
+                    <button
+                      onClick={() => onDelete(booking.id)}
+                      className="flex-1 flex items-center justify-center bg-red-500/20 hover:bg-red-500/30 text-red-400 px-2 py-1.5 rounded transition-all"
+                      title="Удалить"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </div>
-                {/* Стрелка tooltip */}
-                <div className="absolute top-full left-4 -mt-1 w-2 h-2 bg-dungeon-neon-green transform rotate-45"></div>
               </div>
-            )}
+            ))}
           </div>
 
-          {/* Количество гостей */}
-          <div className="flex items-center gap-2 text-gray-300">
-            <Users size={16} />
-            <span>{booking.guests} {booking.guests === 1 ? 'гость' : 'гостей'}</span>
-          </div>
-
-          {/* Телефон */}
-          {booking.phone && (
-            <div className="flex items-center gap-2 text-gray-300">
-              <Phone size={16} />
-              <span className="text-sm">{booking.phone}</span>
-            </div>
-          )}
-
-          {/* VR и Кальян бейджи */}
-          {(booking.vr || booking.hookah) && (
-            <div className="flex items-center gap-2 flex-wrap mt-2">
-              {booking.vr && (
-                <span className="px-2 py-1 rounded-md text-xs font-semibold bg-dungeon-neon-purple/20 text-dungeon-neon-purple border border-dungeon-neon-purple/50">
-                  🥽 VR
-                </span>
-              )}
-              {booking.hookah && (
-                <span className="px-2 py-1 rounded-md text-xs font-semibold bg-dungeon-neon-blue/20 text-dungeon-neon-blue border border-dungeon-neon-blue/50">
-                  💨 Кальян
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Индикатор счастливых часов */}
-          <HappyHoursIndicator
-            time={booking.time}
-            isHappyHours={booking.happyHours}
-            isActive={booking.happyHours}
-            onToggle={() => onHappyHoursToggle && onHappyHoursToggle(booking.id, !booking.happyHours)}
-          />
-
-          {/* Кнопки действий */}
-          <div className="flex gap-2 mt-4 pt-3 border-t border-dungeon-gray">
-            <button
-              onClick={() => onStatusChange(booking.id, booking.status === 'active' ? 'pending' : 'active')}
-              className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-neon-green"
-              title="Подтвердить"
-            >
-              <Check size={18} />
-            </button>
-            
-            <button
-              onClick={() => onEdit(booking)}
-              className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-neon-blue"
-              title="Редактировать"
-            >
-              <Edit2 size={18} />
-            </button>
-            
-            <button
-              onClick={() => onDelete(booking.id)}
-              className="flex-1 flex items-center justify-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-lg transition-all duration-200"
-              title="Удалить"
-            >
-              <Trash2 size={18} />
-            </button>
-          </div>
+          {/* Кнопка добавить еще бронь */}
+          <button
+            onClick={() => onCreate && onCreate(zone)}
+            className="w-full flex items-center justify-center gap-2 bg-dungeon-neon-green/10 hover:bg-dungeon-neon-green/20 text-dungeon-neon-green px-4 py-2 rounded-lg transition-all duration-200 border-2 border-dashed border-dungeon-neon-green/30 hover:border-dungeon-neon-green/50 font-semibold"
+          >
+            <Plus size={18} />
+            <span>Добавить еще бронь</span>
+          </button>
         </div>
       ) : needsCleaning ? (
         <div className="space-y-4">
@@ -240,4 +251,3 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
 };
 
 export default ZoneCard;
-

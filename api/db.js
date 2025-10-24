@@ -172,18 +172,11 @@ export async function getZonesWithBookings(branch = null) {
 
     console.log(`📅 Найдено бронирований: ${bookings.length}`);
 
-    // Объединяем зоны с бронированиями
+    // Объединяем зоны с бронированиями (теперь массив броней на зону)
     const result = zones.map(zone => {
-      const booking = bookings.find(b => b.zone_id === zone.id);
-      
-      return {
-        id: zone.id,
-        name: zone.name,
-        capacity: zone.capacity,
-        isVip: zone.is_vip,
-        branch: zone.branch,
-        needsCleaning: zone.needs_cleaning || false,
-        booking: booking ? {
+      const zoneBookings = bookings
+        .filter(b => b.zone_id === zone.id)
+        .map(booking => ({
           id: booking.id,
           time: booking.time,
           name: booking.name,
@@ -196,7 +189,19 @@ export async function getZonesWithBookings(branch = null) {
           hookah: booking.hookah,
           zone: booking.zone_name,
           branch: booking.branch
-        } : null
+        }))
+        .sort((a, b) => a.time.localeCompare(b.time)); // Сортируем по времени
+      
+      return {
+        id: zone.id,
+        name: zone.name,
+        capacity: zone.capacity,
+        isVip: zone.is_vip,
+        branch: zone.branch,
+        needsCleaning: zone.needs_cleaning || false,
+        bookings: zoneBookings, // Теперь массив броней
+        // Для обратной совместимости оставляем booking (первая бронь)
+        booking: zoneBookings.length > 0 ? zoneBookings[0] : null
       };
     });
 
