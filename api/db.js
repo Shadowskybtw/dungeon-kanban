@@ -11,6 +11,8 @@ const sql = neon(DATABASE_URL);
  */
 export async function initDatabase() {
   try {
+    console.log('🔄 Начинаем инициализацию БД...');
+    
     // Создаем таблицу зон
     await sql`
       CREATE TABLE IF NOT EXISTS zones (
@@ -44,10 +46,13 @@ export async function initDatabase() {
       )
     `;
 
+    console.log('✅ Таблицы созданы');
+
     // Проверяем, есть ли зоны, если нет - создаем
     const zonesCount = await sql`SELECT COUNT(*) as count FROM zones`;
+    console.log('📊 Количество зон в БД:', zonesCount[0].count);
     
-    if (zonesCount[0].count === 0) {
+    if (parseInt(zonesCount[0].count) === 0) {
       // Создаем зоны для Московского ш. (22 зоны)
       const moscowZones = [
         { name: 'Зона 1', capacity: 4, is_vip: false, branch: 'Московское ш.' },
@@ -99,14 +104,18 @@ export async function initDatabase() {
       ];
 
       // Вставляем все зоны
-      for (const zone of [...moscowZones, ...polevayaZones]) {
+      console.log('📝 Создаём зоны...');
+      const allZones = [...moscowZones, ...polevayaZones];
+      for (const zone of allZones) {
         await sql`
           INSERT INTO zones (name, capacity, is_vip, branch)
           VALUES (${zone.name}, ${zone.capacity}, ${zone.is_vip}, ${zone.branch})
         `;
       }
 
-      console.log('✅ База данных инициализирована, зоны созданы');
+      console.log(`✅ База данных инициализирована, создано зон: ${allZones.length} (Московское ш.: 22, Полевая: 20)`);
+    } else {
+      console.log('ℹ️ Зоны уже существуют, пропускаем создание');
     }
 
     return { success: true, message: 'Database initialized' };
@@ -136,12 +145,21 @@ export async function getZonesWithBookings(branch = null) {
       `;
     }
 
+    console.log(`📍 Найдено зон: ${zones.length}`, branch ? `для филиала: ${branch}` : '');
+
+    // Если нет зон, возвращаем пустой массив
+    if (zones.length === 0) {
+      return [];
+    }
+
     // Получаем бронирования для этих зон
     const zoneIds = zones.map(z => z.id);
     const bookings = await sql`
       SELECT * FROM bookings 
       WHERE zone_id = ANY(${zoneIds})
     `;
+
+    console.log(`📅 Найдено бронирований: ${bookings.length}`);
 
     // Объединяем зоны с бронированиями
     const result = zones.map(zone => {
