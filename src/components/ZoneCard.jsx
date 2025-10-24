@@ -185,42 +185,41 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
                   />
 
                   {/* Кнопки действий */}
-                  <div className="space-y-2 mt-4 pt-3 border-t border-dungeon-gray">
-                    <div className="flex gap-2">
+                  <div className="space-y-1.5 mt-3 pt-2 border-t border-dungeon-gray">
+                    <div className="flex gap-1.5">
                       <button
                         onClick={() => onStatusChange(booking.id, booking.status === 'active' ? 'pending' : 'active')}
-                        className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-neon-green"
+                        className="flex-1 flex items-center justify-center bg-dungeon-neon-green/20 hover:bg-dungeon-neon-green/30 text-dungeon-neon-green px-2 py-1.5 rounded transition-all"
                         title="Подтвердить"
                       >
-                        <Check size={18} />
+                        <Check size={16} />
                       </button>
                       
                       <button
                         onClick={() => onEdit(booking)}
-                        className="flex-1 flex items-center justify-center gap-2 bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-3 py-2 rounded-lg transition-all duration-200 hover:shadow-neon-blue"
+                        className="flex-1 flex items-center justify-center bg-dungeon-neon-blue/20 hover:bg-dungeon-neon-blue/30 text-dungeon-neon-blue px-2 py-1.5 rounded transition-all"
                         title="Редактировать"
                       >
-                        <Edit2 size={18} />
+                        <Edit2 size={16} />
                       </button>
                       
                       <button
                         onClick={() => onDelete(booking.id)}
-                        className="flex-1 flex items-center justify-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-lg transition-all duration-200"
+                        className="flex-1 flex items-center justify-center bg-red-500/20 hover:bg-red-500/30 text-red-400 px-2 py-1.5 rounded transition-all"
                         title="Удалить"
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
+                      </button>
+                      
+                      {/* Кнопка завершить - в той же строке */}
+                      <button
+                        onClick={() => onComplete && onComplete(booking.id, booking.name)}
+                        className="flex-1 flex items-center justify-center bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 px-2 py-1.5 rounded transition-all border border-purple-600/30"
+                        title="Завершить"
+                      >
+                        <CheckSquare size={16} />
                       </button>
                     </div>
-                    
-                    {/* Кнопка завершить */}
-                    <button
-                      onClick={() => onComplete && onComplete(booking.id, booking.name)}
-                      className="w-full flex items-center justify-center gap-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 px-3 py-2 rounded-lg transition-all duration-200 font-semibold border border-purple-600/30"
-                      title="Завершить бронь"
-                    >
-                      <CheckSquare size={18} />
-                      <span>Завершить</span>
-                    </button>
                   </div>
                 </div>
               </div>
