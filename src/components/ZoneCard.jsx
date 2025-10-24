@@ -20,7 +20,7 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
       case 'active':
         return 'bg-gradient-to-br from-emerald-900/40 to-dungeon-card border-dungeon-neon-green';
       case 'pending':
-        return 'bg-gradient-to-br from-yellow-900/40 to-dungeon-card border-yellow-500';
+        return 'bg-gradient-to-br from-red-900/40 to-dungeon-card border-red-500';
       case 'cancelled':
         return 'bg-gradient-to-br from-red-900/40 to-dungeon-card border-red-500';
       default:
@@ -33,7 +33,7 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
     
     const badges = {
       active: { text: 'Активна', color: 'bg-dungeon-neon-green text-dungeon-darker' },
-      pending: { text: 'Ожидание', color: 'bg-yellow-500 text-dungeon-darker' },
+      pending: { text: 'Ожидание', color: 'bg-red-500 text-white' },
       cancelled: { text: 'Отменена', color: 'bg-red-500 text-white' },
     };
 
@@ -133,6 +133,22 @@ const ZoneCard = ({ zone, onStatusChange, onEdit, onDelete, onCreate, onHappyHou
             <div className="flex items-center gap-2 text-gray-300">
               <Phone size={16} />
               <span className="text-sm">{booking.phone}</span>
+            </div>
+          )}
+
+          {/* VR и Кальян бейджи */}
+          {(booking.vr || booking.hookah) && (
+            <div className="flex items-center gap-2 flex-wrap mt-2">
+              {booking.vr && (
+                <span className="px-2 py-1 rounded-md text-xs font-semibold bg-dungeon-neon-purple/20 text-dungeon-neon-purple border border-dungeon-neon-purple/50">
+                  🥽 VR
+                </span>
+              )}
+              {booking.hookah && (
+                <span className="px-2 py-1 rounded-md text-xs font-semibold bg-dungeon-neon-blue/20 text-dungeon-neon-blue border border-dungeon-neon-blue/50">
+                  💨 Кальян
+                </span>
+              )}
             </div>
           )}
 
