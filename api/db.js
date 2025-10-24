@@ -327,15 +327,9 @@ export async function deleteBooking(bookingId, skipCleaningFlag = false) {
       WHERE id = ${bookingId}
     `;
 
-    // Устанавливаем флаг "требует уборки" только если не пропускаем (skipCleaningFlag=false)
-    if (!skipCleaningFlag && booking.length > 0) {
-      await sql`
-        UPDATE zones 
-        SET needs_cleaning = TRUE 
-        WHERE id = ${booking[0].zone_id}
-      `;
-      console.log(`🧹 Зона #${booking[0].zone_id} помечена как требующая уборки`);
-    }
+    // При простом удалении НЕ помечаем зону для уборки
+    // Зона помечается для уборки только при завершении брони (completeBooking)
+    console.log(`🗑️ Бронь #${bookingId} удалена, зона НЕ помечена для уборки`);
 
     return { success: true };
   } catch (error) {
@@ -456,17 +450,18 @@ export async function completeBooking(bookingId, completionType) {
       WHERE id = ${bookingId}
     `;
 
-    // Если гость пришел (completed), НЕ помечаем зону для уборки (они еще там)
-    // Если не пришел (no_show), помечаем зону для уборки
+    // При завершении брони ВСЕГДА помечаем зону для уборки
+    // (и когда гости пришли, и когда не пришли - зона использовалась)
+    await sql`
+      UPDATE zones 
+      SET needs_cleaning = TRUE 
+      WHERE id = ${bookingData.zone_id}
+    `;
+    
     if (completionType === 'no_show') {
-      await sql`
-        UPDATE zones 
-        SET needs_cleaning = TRUE 
-        WHERE id = ${bookingData.zone_id}
-      `;
       console.log(`🚫 Бронь #${bookingId} не пришла, зона помечена для уборки`);
     } else {
-      console.log(`✅ Бронь #${bookingId} завершена (гости пришли)`);
+      console.log(`✅ Бронь #${bookingId} завершена (гости пришли), зона помечена для уборки`);
     }
 
     return { success: true, completionType };
