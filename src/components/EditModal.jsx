@@ -84,42 +84,42 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-dungeon-card border-2 border-dungeon-neon-purple rounded-2xl shadow-neon-purple max-w-md w-full overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black/70 backdrop-blur-sm animate-fade-in">
+      <div className="bg-dungeon-card border border-dungeon-neon-purple rounded-xl shadow-neon-purple max-w-md w-full overflow-hidden">
         {/* Заголовок */}
-        <div className="bg-gradient-to-r from-dungeon-neon-purple/20 to-dungeon-neon-blue/20 p-6 border-b-2 border-dungeon-gray">
+        <div className="bg-gradient-to-r from-dungeon-neon-purple/20 to-dungeon-neon-blue/20 p-3 border-b border-dungeon-gray">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-orbitron text-2xl font-bold text-dungeon-neon-purple">
+              <h2 className="font-orbitron text-lg font-bold text-dungeon-neon-purple">
                 {isCreating ? 'Новая бронь' : 'Редактирование брони'}
               </h2>
-              <p className="text-gray-400 text-sm mt-1">{zone?.name}</p>
+              <p className="text-gray-400 text-xs mt-0.5">{zone?.name}</p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-dungeon-gray rounded-lg"
+              className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-dungeon-gray rounded-md"
             >
-              <X size={24} />
+              <X size={18} />
             </button>
           </div>
         </div>
 
         {/* Форма */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-3 space-y-2.5">
           {/* Время - кнопки выбора часов */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
-              <Clock size={16} className="text-dungeon-neon-blue" />
+            <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
+              <Clock size={12} className="text-dungeon-neon-blue" />
               Время *
             </label>
-            <div className="grid grid-cols-6 gap-2 mb-2">
+            <div className="grid grid-cols-6 gap-1.5 mb-1.5">
               {[14, 15, 16, 17, 18, 19].map(hour => (
                 <button
                   key={hour}
                   type="button"
                   onClick={() => handleChange('time', `${hour}:00`)}
                   className={`
-                    py-2 px-3 rounded-lg font-semibold transition-all duration-200 text-sm
+                    py-1.5 px-2 rounded-md font-semibold transition-all duration-200 text-xs
                     ${formData.time === `${hour}:00` || formData.time?.startsWith(`${hour}:`)
                       ? 'bg-dungeon-neon-green text-dungeon-darker shadow-neon-green'
                       : 'bg-dungeon-darker text-gray-400 border border-dungeon-gray hover:border-dungeon-neon-green/50'
@@ -130,14 +130,14 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-6 gap-1.5">
               {[20, 21, 22, 23, '00', '01'].map(hour => (
                 <button
                   key={hour}
                   type="button"
                   onClick={() => handleChange('time', `${hour}:00`)}
                   className={`
-                    py-2 px-3 rounded-lg font-semibold transition-all duration-200 text-sm
+                    py-1.5 px-2 rounded-md font-semibold transition-all duration-200 text-xs
                     ${formData.time === `${hour}:00` || formData.time?.startsWith(`${hour}:`)
                       ? 'bg-dungeon-neon-green text-dungeon-darker shadow-neon-green'
                       : 'bg-dungeon-darker text-gray-400 border border-dungeon-gray hover:border-dungeon-neon-green/50'
@@ -152,22 +152,22 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
               type="time"
               value={formData.time}
               onChange={(e) => handleChange('time', e.target.value)}
-              className="w-full mt-2 bg-dungeon-darker border-2 border-dungeon-gray rounded-lg px-4 py-2 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors text-sm"
+              className="w-full mt-1.5 bg-dungeon-darker border border-dungeon-gray rounded-md px-3 py-1.5 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors text-xs"
               required
             />
           </div>
 
           {/* Имя гостя */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
-              <User size={16} className="text-dungeon-neon-blue" />
+            <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
+              <User size={12} className="text-dungeon-neon-blue" />
               Имя *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
-              className="w-full bg-dungeon-darker border-2 border-dungeon-gray rounded-lg px-4 py-2 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors"
+              className="w-full bg-dungeon-darker border border-dungeon-gray rounded-md px-3 py-1.5 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors text-sm"
               placeholder="Имя клиента"
               required
             />
@@ -175,8 +175,8 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
 
           {/* Количество гостей */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
-              <Users size={16} className="text-dungeon-neon-blue" />
+            <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
+              <Users size={12} className="text-dungeon-neon-blue" />
               Гости *
             </label>
             <div className="flex items-center gap-2">
@@ -186,10 +186,10 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
                 max={zone?.capacity || 20}
                 value={formData.guests}
                 onChange={(e) => handleChange('guests', parseInt(e.target.value) || 1)}
-                className="flex-1 bg-dungeon-darker border-2 border-dungeon-gray rounded-lg px-4 py-2 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors text-center font-semibold"
+                className="flex-1 bg-dungeon-darker border border-dungeon-gray rounded-md px-3 py-1.5 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors text-center font-semibold text-sm"
                 required
               />
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-0.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -198,10 +198,10 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
                       handleChange('guests', newValue);
                     }
                   }}
-                  className="bg-dungeon-neon-green hover:bg-dungeon-neon-green/80 text-dungeon-darker p-1 rounded transition-all shadow-neon-green/30"
+                  className="bg-dungeon-neon-green hover:bg-dungeon-neon-green/80 text-dungeon-darker p-0.5 rounded transition-all shadow-neon-green/30"
                   title="Увеличить"
                 >
-                  <ChevronUp size={16} strokeWidth={3} />
+                  <ChevronUp size={14} strokeWidth={3} />
                 </button>
                 <button
                   type="button"
@@ -211,95 +211,95 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
                       handleChange('guests', newValue);
                     }
                   }}
-                  className="bg-dungeon-neon-green hover:bg-dungeon-neon-green/80 text-dungeon-darker p-1 rounded transition-all shadow-neon-green/30"
+                  className="bg-dungeon-neon-green hover:bg-dungeon-neon-green/80 text-dungeon-darker p-0.5 rounded transition-all shadow-neon-green/30"
                   title="Уменьшить"
                 >
-                  <ChevronDown size={16} strokeWidth={3} />
+                  <ChevronDown size={14} strokeWidth={3} />
                 </button>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-[10px] text-gray-500 mt-0.5">
               Вместимость: до {zone?.capacity || 0} чел.
             </p>
           </div>
 
           {/* Телефон */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
-              <Phone size={16} className="text-dungeon-neon-blue" />
+            <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
+              <Phone size={12} className="text-dungeon-neon-blue" />
               Телефон
             </label>
             <input
               type="tel"
               value={formData.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
-              className="w-full bg-dungeon-darker border-2 border-dungeon-gray rounded-lg px-4 py-2 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors"
+              className="w-full bg-dungeon-darker border border-dungeon-gray rounded-md px-3 py-1.5 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors text-sm"
               placeholder="+7"
             />
           </div>
 
           {/* Комментарий */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
+            <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
               Комментарий
             </label>
             <textarea
               value={formData.comment}
               onChange={(e) => handleChange('comment', e.target.value)}
-              className="w-full bg-dungeon-darker border-2 border-dungeon-gray rounded-lg px-4 py-2 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors resize-none"
+              className="w-full bg-dungeon-darker border border-dungeon-gray rounded-md px-3 py-1.5 text-white focus:border-dungeon-neon-green focus:outline-none transition-colors resize-none text-sm"
               rows="2"
               placeholder="Дополнительная информация..."
             />
           </div>
 
           {/* Дополнительные опции */}
-          <div className="flex items-center gap-4 pt-2">
-            <label className="flex items-center gap-2 cursor-pointer">
+          <div className="flex items-center gap-3 pt-1">
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.vr}
                 onChange={(e) => handleChange('vr', e.target.checked)}
-                className="w-4 h-4 rounded border-dungeon-gray bg-dungeon-darker text-dungeon-neon-green focus:ring-dungeon-neon-green"
+                className="w-3.5 h-3.5 rounded border-dungeon-gray bg-dungeon-darker text-dungeon-neon-green focus:ring-dungeon-neon-green"
               />
-              <span className="text-sm text-gray-300">VR</span>
+              <span className="text-xs text-gray-300">VR</span>
             </label>
             
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.hookah}
                 onChange={(e) => handleChange('hookah', e.target.checked)}
-                className="w-4 h-4 rounded border-dungeon-gray bg-dungeon-darker text-dungeon-neon-green focus:ring-dungeon-neon-green"
+                className="w-3.5 h-3.5 rounded border-dungeon-gray bg-dungeon-darker text-dungeon-neon-green focus:ring-dungeon-neon-green"
               />
-              <span className="text-sm text-gray-300">Кальян</span>
+              <span className="text-xs text-gray-300">Кальян</span>
             </label>
             
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.happyHours}
                 onChange={(e) => handleChange('happyHours', e.target.checked)}
-                className="w-4 h-4 rounded border-dungeon-gray bg-dungeon-darker text-dungeon-neon-green focus:ring-dungeon-neon-green"
+                className="w-3.5 h-3.5 rounded border-dungeon-gray bg-dungeon-darker text-dungeon-neon-green focus:ring-dungeon-neon-green"
               />
-              <span className="text-sm text-gray-300">Счастливые часы</span>
+              <span className="text-xs text-gray-300">Счастливые часы</span>
             </label>
           </div>
 
           {/* Статус (только при редактировании) */}
           {!isCreating && (
             <div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-300 mb-1.5">
                 Статус
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <button
                   type="button"
                   onClick={() => handleChange('status', 'active')}
                   className={`
-                    flex-1 py-2 px-4 rounded-lg font-semibold transition-all duration-200 text-sm
+                    flex-1 py-1.5 px-3 rounded-md font-semibold transition-all duration-200 text-xs
                     ${formData.status === 'active'
                       ? 'bg-dungeon-neon-green text-dungeon-darker shadow-neon-green'
-                      : 'bg-dungeon-darker text-gray-400 border-2 border-dungeon-gray hover:border-dungeon-neon-green/50'
+                      : 'bg-dungeon-darker text-gray-400 border border-dungeon-gray hover:border-dungeon-neon-green/50'
                     }
                   `}
                 >
@@ -309,10 +309,10 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
                   type="button"
                   onClick={() => handleChange('status', 'pending')}
                   className={`
-                    flex-1 py-2 px-4 rounded-lg font-semibold transition-all duration-200 text-sm
+                    flex-1 py-1.5 px-3 rounded-md font-semibold transition-all duration-200 text-xs
                     ${formData.status === 'pending'
                       ? 'bg-red-500 text-white'
-                      : 'bg-dungeon-darker text-gray-400 border-2 border-dungeon-gray hover:border-red-500/50'
+                      : 'bg-dungeon-darker text-gray-400 border border-dungeon-gray hover:border-red-500/50'
                     }
                   `}
                 >
@@ -323,19 +323,19 @@ const EditModal = ({ booking, zone, isOpen, onClose, onSave, isCreating = false 
           )}
 
           {/* Кнопки */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-dungeon-gray hover:bg-dungeon-gray/70 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200"
+              className="flex-1 bg-dungeon-gray hover:bg-dungeon-gray/70 text-white py-2 px-4 rounded-md font-semibold transition-all duration-200 text-sm"
             >
               Отмена
             </button>
             <button
               type="submit"
-              className="flex-1 bg-dungeon-neon-blue hover:bg-dungeon-neon-blue/80 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 shadow-neon-blue flex items-center justify-center gap-2"
+              className="flex-1 bg-dungeon-neon-blue hover:bg-dungeon-neon-blue/80 text-white py-2 px-4 rounded-md font-semibold transition-all duration-200 shadow-neon-blue flex items-center justify-center gap-1.5 text-sm"
             >
-              <Save size={20} />
+              <Save size={16} />
               {isCreating ? 'Добавить' : 'Сохранить'}
             </button>
           </div>
