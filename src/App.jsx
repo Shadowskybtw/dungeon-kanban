@@ -62,34 +62,40 @@ function App() {
     setSelectedBranch(branch);
   };
 
-  // Обработка изменения статуса бронирования
-  const handleStatusChange = async (bookingId, newStatus) => {
-    // Оптимистичное обновление UI
-    setZones(prevZones => prevZones.map(zone => {
-      if (zone.booking?.id === bookingId) {
-        return {
-          ...zone,
-          booking: {
-            ...zone.booking,
+    // Обработка изменения статуса бронирования
+    const handleStatusChange = async (bookingId, newStatus) => {
+      // Оптимистичное обновление UI
+      setZones(prevZones => prevZones.map(zone => {
+        // Ищем бронь в массиве bookings
+        const bookingIndex = zone.bookings?.findIndex(b => b.id === bookingId);
+        if (bookingIndex !== undefined && bookingIndex !== -1) {
+          const updatedBookings = [...zone.bookings];
+          updatedBookings[bookingIndex] = {
+            ...updatedBookings[bookingIndex],
             status: newStatus
-          }
-        };
-      }
-      return zone;
-    }));
+          };
+          return {
+            ...zone,
+            bookings: updatedBookings,
+            // Обновляем и booking для обратной совместимости
+            booking: updatedBookings[0] || null
+          };
+        }
+        return zone;
+      }));
 
-    try {
-      await updateBookingStatus(bookingId, newStatus);
-      addToast('✅ Статус обновлён', 'success');
-      // Обновляем данные с сервера
-      setTimeout(() => loadData(), 500);
-    } catch (error) {
-      console.error('Ошибка изменения статуса:', error);
-      addToast('❌ Не удалось изменить статус', 'error');
-      // В случае ошибки откатываем изменения
-      loadData();
-    }
-  };
+      try {
+        await updateBookingStatus(bookingId, newStatus);
+        addToast('✅ Статус обновлён', 'success');
+        // Обновляем данные с сервера
+        setTimeout(() => loadData(), 500);
+      } catch (error) {
+        console.error('Ошибка изменения статуса:', error);
+        addToast('❌ Не удалось изменить статус', 'error');
+        // В случае ошибки откатываем изменения
+        loadData();
+      }
+    };
 
   // Обработка создания новой брони
   const handleCreate = (zone) => {
@@ -162,32 +168,38 @@ function App() {
     }
   };
 
-  // Переключение счастливых часов
-  const handleHappyHoursToggle = async (bookingId, enabled) => {
-    // Оптимистичное обновление UI
-    setZones(prevZones => prevZones.map(zone => {
-      if (zone.booking?.id === bookingId) {
-        return {
-          ...zone,
-          booking: {
-            ...zone.booking,
+    // Переключение счастливых часов
+    const handleHappyHoursToggle = async (bookingId, enabled) => {
+      // Оптимистичное обновление UI
+      setZones(prevZones => prevZones.map(zone => {
+        // Ищем бронь в массиве bookings
+        const bookingIndex = zone.bookings?.findIndex(b => b.id === bookingId);
+        if (bookingIndex !== undefined && bookingIndex !== -1) {
+          const updatedBookings = [...zone.bookings];
+          updatedBookings[bookingIndex] = {
+            ...updatedBookings[bookingIndex],
             happyHours: enabled
-          }
-        };
-      }
-      return zone;
-    }));
+          };
+          return {
+            ...zone,
+            bookings: updatedBookings,
+            // Обновляем и booking для обратной совместимости
+            booking: updatedBookings[0] || null
+          };
+        }
+        return zone;
+      }));
 
-    try {
-      await updateBooking(bookingId, { happyHours: enabled });
-      addToast(enabled ? '🎉 Счастливые часы активированы!' : 'Счастливые часы отключены', 'success');
-      setTimeout(() => loadData(), 500);
-    } catch (error) {
-      console.error('Ошибка переключения счастливых часов:', error);
-      addToast('❌ Не удалось обновить статус', 'error');
-      loadData();
-    }
-  };
+      try {
+        await updateBooking(bookingId, { happyHours: enabled });
+        addToast(enabled ? '🎉 Счастливые часы активированы!' : 'Счастливые часы отключены', 'success');
+        setTimeout(() => loadData(), 500);
+      } catch (error) {
+        console.error('Ошибка переключения счастливых часов:', error);
+        addToast('❌ Не удалось обновить статус', 'error');
+        loadData();
+      }
+    };
 
     // Обработка удаления бронирования
     const handleDelete = async (bookingId, guestName) => {
